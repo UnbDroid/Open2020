@@ -25,8 +25,8 @@ BRANCO = 6
 
 frente = 1
 tras = -1
-direita = 1
-esquerda = -1
+direita = -1
+esquerda = 1
 
 
 def PrintSim(mensagem):
@@ -67,11 +67,11 @@ def getDistanceIR(sensor):
 
 def getColor(sensor):
     min_color_value = 200
-    erro, resolution, Image = sim.simxGetVisionSensorImage(clientID, color_sensor_Left, 0, sim.simx_opmode_buffer)
+    erro, resolution, Image = sim.simxGetVisionSensorImage(clientID, sensor, 0, sim.simx_opmode_buffer)
     while (erro != 0):
-        erro, resolution, Image = sim.simxGetVisionSensorImage(clientID, color_sensor_Left, 0, sim.simx_opmode_buffer)
+        erro, resolution, Image = sim.simxGetVisionSensorImage(clientID, sensor, 0, sim.simx_opmode_buffer)
     img = np.array(Image, dtype=np.uint8)
-    # print(resolution, img)
+    print(resolution, img)
     rgb_color = 0
     if (img[0] > min_color_value):
         rgb_color += 100
@@ -149,20 +149,20 @@ def Stop():
 def TurnRight():
     vref = 1
     sim.simxPauseCommunication(clientID, True)
-    sim.simxSetJointTargetVelocity(clientID, robotRightMotor, vref, sim.simx_opmode_oneshot)
-    sim.simxSetJointTargetVelocity(clientID, robotLeftMotor, -vref, sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetVelocity(clientID, robotRightMotor, -vref, sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetVelocity(clientID, robotLeftMotor, vref, sim.simx_opmode_oneshot)
     sim.simxPauseCommunication(clientID, False)
 
 def TurnLeft():
     vref = 1
     sim.simxPauseCommunication(clientID, True)
-    sim.simxSetJointTargetVelocity(clientID, robotRightMotor,-vref, sim.simx_opmode_oneshot)
-    sim.simxSetJointTargetVelocity(clientID, robotLeftMotor, vref, sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetVelocity(clientID, robotRightMotor,vref, sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetVelocity(clientID, robotLeftMotor, -vref, sim.simx_opmode_oneshot)
     sim.simxPauseCommunication(clientID, False)
 
 def TurnDirectionAng(direcao, ang):   #Girar para a direita ou para a esquerda pelo angulo que você escolher
-    #ang em graus
-    #direcao: 1 = direita, -1 = esquerda
+    #ang positivo em graus
+    #direcao: -1 = direita, 1 = esquerda
     angref = direcao*ang*(np.pi*180)*(0.04188/360)
     erro, angRight = sim.simxGetJointPosition(clientID, robotRightMotor, sim.simx_opmode_buffer)
     erro, angLeft = sim.simxGetJointPosition(clientID, robotLeftMotor, sim.simx_opmode_buffer)
@@ -189,37 +189,45 @@ def TurnDirectionAng(direcao, ang):   #Girar para a direita ou para a esquerda p
 
 
 def Align():   #em desenvolvimento
+    direita_preto = False
+    esquerda_preto = False
     while(getColor(color_sensor_Left) != PRETO and getColor(color_sensor_Right) != PRETO):
         MoveDirectionPosition(tras, 0.001)
         print("To procurando a linha")
     print("Achei a linha")
-
+    Stop()
     #while (getColor(color_sensor_Left) != PRETO or getColor(color_sensor_Right) != PRETO):
         #MoveDirectionPosition(1, 0.001)
         #Stop()
-    if (getColor(color_sensor_Left != PRETO)):
+    if (getColor(color_sensor_Left) != PRETO):
         print("Esquerdo branco")
     else: #(getColor(color_sensor_Right) == PRETO):
         print("Esquerdo preto")
-    if (getColor(color_sensor_Right != PRETO)):
+    if (getColor(color_sensor_Right) != PRETO):
         print("Direito branco")
     else: #(getColor(color_sensor_Left) == PRETO):
         print("Direito preto")
 
+
+
         #print("To procurando a linha")
-        #while ((getColor(color_sensor_Left) != PRETO and getColor(color_sensor_Right) == PRETO) or (getColor(color_sensor_Left) == PRETO and getColor(color_sensor_Right) != PRETO)):
+    while ((getColor(color_sensor_Left) != PRETO and getColor(color_sensor_Right) == PRETO) or (getColor(color_sensor_Left) == PRETO and getColor(color_sensor_Right) != PRETO)):
             #print("Achei a linha")
-            #if (getColor(color_sensor_Left) != PRETO):
+        if (getColor(color_sensor_Left) != PRETO):
             # Mover so roda esquerda
-                #print("Vamos girar")
-                #TurnDirectionAng(direita, 1)
-                #print("Girando para a direita")
+            print("Vamos girar")
+            TurnDirectionAng(esquerda, 1)
+            print("Girando para a esquerda")
+            direita_preto = True
             #MoveDirectionPosition(frente, 0.001)
-            #elif (getColor(color_sensor_Right) != PRETO):
+        elif (getColor(color_sensor_Right) != PRETO):
             # Mover so roda direita
-                #TurnDirectionAng(esquerda, 1)
-                #print("Girando para a esquerda")
+            TurnDirectionAng(direita, 1)
+            print("Girando para a direita")
             #MoveDirectionPosition(frente, 0.001)
+            esquerda_preto = True
+        Stop()
+    while (getColor(color_sensor_Left) != PRETO and getColor(color_sensor_Right) != PRETO)
 
 
 def MoveDirectionSquare(direcao, n):   #Anda n quadrados pra frente ou pra trás
@@ -256,8 +264,8 @@ if clientID != -1:
     # Robô
     erro, robot = sim.simxGetObjectHandle(clientID, robotname, sim.simx_opmode_oneshot_wait)
     # Motores
-    [erro, robotLeftMotor] = sim.simxGetObjectHandle(clientID, 'Revolute_joint2', sim.simx_opmode_oneshot_wait)
-    [erro, robotRightMotor] = sim.simxGetObjectHandle(clientID, 'Revolute_joint1', sim.simx_opmode_oneshot_wait)
+    [erro, robotRightMotor] = sim.simxGetObjectHandle(clientID, 'Revolute_joint2', sim.simx_opmode_oneshot_wait)
+    [erro, robotLeftMotor] = sim.simxGetObjectHandle(clientID, 'Revolute_joint1', sim.simx_opmode_oneshot_wait)
     # Sensores
     erro, irRight = sim.simxGetObjectHandle(clientID, 'Sensor_IR_direito', sim.simx_opmode_oneshot_wait)
     erro, irLeft = sim.simxGetObjectHandle(clientID, 'Sensor_IR_esquerdo', sim.simx_opmode_oneshot_wait)
@@ -292,7 +300,7 @@ if clientID != -1:
 
     ### TESTES ###
 
-    MoveDirectionSquare(frente, 6)
+    MoveDirectionSquare(frente, 1)
 
     ##############
 
