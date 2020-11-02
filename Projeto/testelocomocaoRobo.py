@@ -44,9 +44,9 @@ cube = 0
 
 ################# TESTEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ##########################33
 matrix = [
-    ['W', 0, 0],
-    ['R', 3, 2]
-#    ['W', 1, 1],   
+    ['R', 0, 0],
+    ['W', 0, 2],
+    ['G', 0, 1]   
 #    ['G', 7, 2],
 #    ['B', 4, 3]
 ]
@@ -141,7 +141,7 @@ def grab(cube):
     erro = 1
     while erro != 0:
         erro = sim.simxSetObjectParent(clientID, cube, pa, True, sim.simx_opmode_oneshot)
-        print('parent', erro)
+        #print('parent', erro)
     time.sleep(3)
 
 
@@ -187,12 +187,19 @@ def fechar_garra():
     sim.simxPauseCommunication(clientID, False)
     time.sleep(1)
 
+def fechar_garra_total():
+    sim.simxPauseCommunication(clientID, True)
+    sim.simxSetJointTargetPosition(clientID,paDireita,0.01,sim.simx_opmode_oneshot) 
+    sim.simxSetJointTargetPosition(clientID,paEsquerda,0.01,sim.simx_opmode_oneshot)
+    sim.simxPauseCommunication(clientID, False)
+    time.sleep(1)
+
 ## FUNÇÕES PEGAR CUBO ########################################
 
 def empurrar_cubo():
     MoveDirectionPosition(tras, 0.012)
-    fechar_garra()
-    while(getDistanceIR(irLeft) > 0.01 and getDistanceIR(irRight) > 0.01):
+    fechar_garra_total()
+    while(getDistanceIR(irLeft) > 0.01 or getDistanceIR(irRight) > 0.01):
         MoveDirectionPosition(frente, 0.001)
     MoveDirectionPosition(frente, 0.004)
 
@@ -215,7 +222,7 @@ def entregar_cubo_colorido(cube):
     descer_elevador()
     leave(cube)
     abrir_garra()
-    empurrar_cubo()
+    #empurrar_cubo()
     subir_elevador(SEGUNDO_ANDAR)
 
 def entregar_cubo_terceiro_andar(cube):
@@ -224,8 +231,9 @@ def entregar_cubo_terceiro_andar(cube):
     chegar_perto_prateleira()
     abrir_garra()
     leave(cube)
-    empurrar_cubo()
-    MoveDirectionPosition(tras,0.020)
+    #empurrar_cubo()
+    AlignBack()
+    fechar_garra_total()
 
 def entregar_cubo_segundo_andar(cube):
     subir_elevador(SEGUNDO_ANDAR)
@@ -233,8 +241,9 @@ def entregar_cubo_segundo_andar(cube):
     chegar_perto_prateleira()
     leave(cube)
     abrir_garra()
-    empurrar_cubo()
-    MoveDirectionPosition(tras,0.020)
+    #empurrar_cubo()
+    AlignBack()
+    fechar_garra_total()
 
 def entregar_cubo_primeiro_andar(cube):
     subir_elevador(PRIMEIRO_ANDAR)
@@ -242,13 +251,22 @@ def entregar_cubo_primeiro_andar(cube):
     chegar_perto_prateleira()
     leave(cube)
     abrir_garra()
-    empurrar_cubo()
+    #empurrar_cubo()
     AlignBack()
+    fechar_garra_total()
 
 def alinhar_cubo_na_esquerda_e_pegar():
-    MoveDirectionPosition(tras, 0.015)
-    abrir_garra()
+    #MoveDirectionPosition(tras, 0.015)
     descer_elevador()
+    while True :
+        a = getDistanceIR(irRight)
+        b = getDistanceIR(irLeft)
+        print(a,b)
+        MoveDirectionPosition(frente, 0.001)
+        if(b<0.03 or a < 0.03):
+            break
+
+    abrir_garra()
     esq=0
     while True :
         a = getDistanceIR(irRight)
@@ -259,7 +277,7 @@ def alinhar_cubo_na_esquerda_e_pegar():
         #     esq=esq+1
         # if(a<1 and esq>0):
         #     break
-        if(b<1):
+        if(b<0.015):
             break
     cube = getCubeHandle(irLeft)
     TurnDirectionAng(esquerda, 5)
@@ -277,9 +295,17 @@ def alinhar_cubo_na_esquerda_e_pegar():
     return cube
 
 def alinhar_cubo_na_direita_e_pegar():
-    MoveDirectionPosition(tras, 0.015)
-    abrir_garra()
+    #MoveDirectionPosition(tras, 0.015)
     descer_elevador()
+    while True :
+        a = getDistanceIR(irRight)
+        b = getDistanceIR(irLeft)
+        print(a,b)
+        MoveDirectionPosition(frente, 0.001)
+        if(b<0.03 or a < 0.03):
+            break
+
+    abrir_garra()
     dirt=0
     while True :
         a = getDistanceIR(irRight)
@@ -290,7 +316,7 @@ def alinhar_cubo_na_direita_e_pegar():
         #     dirt=dirt+1
         # if(b<1 and dirt>0):
         #     break
-        if(a < 1):
+        if(a < 0.15):
             break
     cube = getCubeHandle(irRight)
     TurnDirectionAng(direita, 5)
@@ -685,6 +711,16 @@ def goToShelfDeliver(block, currentPosition, myDirection, cube):
 
     return currentPosition, myDirection
 
+
+def goToSquareSide(myDirection, firstDirection, finalTurn):
+    #MoveDirectionPosition(tras, 0.01)
+    turnTo(myDirection, firstDirection)
+    Align()
+    MoveDirectionPosition(tras, 0.005)
+    TurnDirectionAng(finalTurn, 90)
+
+    
+        
                
 ### FUNÇÕES DESAFIO ###############################################################
 
@@ -729,6 +765,7 @@ def course(block, matrix):
     delivery_locals = {'R': [74], 'Y': [73, 75], 'B': [72, 76], 'G': [71, 77], 'W': [14], 'K': [14]}
     stock_locals = {0: 32, 1: 33, 2: 42, 3:43, 4: 35, 5: 36, 6: 45, 7: 46}
     hiddenBlock = False
+    blockPosition = matrix[block][2]
 
     #definindo quadrante para buscar bloco
     if (stock_locals[matrix[block][1]] == 32 or stock_locals[matrix[block][1]] == 35):
@@ -785,26 +822,73 @@ def course(block, matrix):
 
     blockColor = matrix[block][0]
 
-    return blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock
+    return blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition
+
+
+
+def grabBlock(currentPosition, blockPosition, myDirection):
+    if(currentPosition == 22 or currentPosition== 23 or currentPosition == 25 or currentPosition == 26):
+        if(blockPosition == 0):
+            goToSquareSide(myDirection, WEST, esquerda)
+            myDirection = SOUTH
+            cube = alinhar_cubo_na_direita_e_pegar()
+        if(blockPosition == 1):
+            goToSquareSide(myDirection, EAST, direita)
+            myDirection = SOUTH
+            cube = alinhar_cubo_na_esquerda_e_pegar()
+    if(currentPosition == 31 or currentPosition== 41 or currentPosition == 34 or currentPosition == 44):
+        if(blockPosition == 0):
+            goToSquareSide(myDirection, NORTH, direita)
+            myDirection = EAST
+            cube = alinhar_cubo_na_esquerda_e_pegar()
+        if(blockPosition == 2):
+            goToSquareSide(myDirection, SOUTH, esquerda)
+            myDirection = EAST
+            cube = alinhar_cubo_na_direita_e_pegar()
+    if(currentPosition == 52 or currentPosition== 53 or currentPosition == 55 or currentPosition == 56):
+        if(blockPosition == 2):
+            goToSquareSide(myDirection, EAST, direita)
+            myDirection = NORTH
+            cube = alinhar_cubo_na_esquerda_e_pegar()
+        if(blockPosition == 3):
+            goToSquareSide(myDirection, WEST, esquerda)
+            myDirection = NORTH
+            cube = alinhar_cubo_na_direita_e_pegar()  
+    if(currentPosition == 34 or currentPosition== 44 or currentPosition == 37 or currentPosition == 47):
+        if(blockPosition == 1):
+            goToSquareSide(myDirection, NORTH, esquerda)
+            myDirection = WEST
+            cube = alinhar_cubo_na_direita_e_pegar()
+        if(blockPosition == 3):
+            goToSquareSide(myDirection, SOUTH, direita)
+            myDirection = WEST
+            cube = alinhar_cubo_na_esquerda_e_pegar()
+
+    return myDirection, cube
+
+    
             
 
 def winOPEN():
     initialPosition = 11
     initialDirection = SOUTH
     #currentPosition, myDirection, order, matrix = getBlocksInformation(initialPosition, initialDirection)
-    order = [1, 2, 3]
+    #order = [1, 2, 3]
     pickLater = []
+    #APENAS TESTE
+    order = gb.get_path(gb.createGraphBlocks(matrix))
     currentPosition = initialPosition
     myDirection = initialDirection
+    #FIM DE TESTE
     for i in range(1, len(order)):
-        blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock = course(order[i] - 2, matrix)
+        blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition = course(order[i] - 2, matrix)
         if (not hiddenBlock):
             currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
-            cube = alinhar_cubo_na_direita_e_pegar()
+            myDirection, cube = grabBlock(currentPosition, blockPosition, myDirection)
             currentPosition, myDirection = goFromTo(currentPosition, blockLocalDelivery, myDirection)
             if(blockColor == 'K' or blockColor == 'W'):
                 #identifica número
-                blockNumber = 3 ##### MODIFICAR QUANDO IDENTIFICAR
+                blockNumber = 6 ##### MODIFICAR QUANDO IDENTIFICAR
                 currentPosition, myDirection = goToShelfDeliver(blockNumber, currentPosition, myDirection, cube)
             else:
                 entregar_cubo_colorido(cube)
@@ -864,6 +948,8 @@ if clientID != -1:
     initialPosition = 11
     initialDirection = SOUTH
     winOPEN()
+
+
     #getBlocksInformation(initialPosition, initialDirection)
     # TurnDirectionAng(direita, 90)
     # # time.sleep(10)

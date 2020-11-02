@@ -11,19 +11,19 @@ import copy
 #    ['B', 2],
 #    ['Y', 2]
 # ]
-matrix = [
-    ['R', 0],
-    ['W', 1],   
-    ['G', 7],
-    ['B', 4]
-]
+# matrix = [
+#     ['R', 0],
+#     ['W', 1],   
+#     ['G', 7],
+#     ['B', 4]
+# ]
 
 delivery_locals = {'R': [74], 'Y': [73, 75], 'B': [72, 76], 'G': [71, 77], 'W': [14], 'K': [14]}
 stock_locals = {0: 32, 1: 33, 2: 42, 3:43, 4: 35, 5: 36, 6: 45, 7: 46}
 blockPoints = {'W': 1000,'K':500, 'R': 100, 'Y': 100, 'B': 100, 'G': 100}
 initialPosition = 11
 
-n = len(matrix)+1
+
 #print(n)
 all_sets = []
 g = {}
@@ -49,6 +49,7 @@ def BlockDistances(start, end):
 
 
 def createGraphBlocks(matrix):
+    n = len(matrix)+1
     graphBlocks = []
     for i in range(len(matrix)+1):
         aux = []
@@ -73,6 +74,7 @@ def createGraphBlocks(matrix):
     return graphBlocks
 
 def get_path(matrix):
+    n = len(matrix)
     for x in range(1, n):
         g[x + 1, ()] = matrix[x][0]
     rest = (2,)
@@ -101,6 +103,7 @@ def get_path(matrix):
 
 
 def get_minimum(k, a, matrix):
+    n = len(matrix)+1
     if (k, a) in g:
         # Already calculated Set g[%d, (%s)]=%d' % (k, str(a), g[k, a]))
         return g[k, a]
