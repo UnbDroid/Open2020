@@ -227,7 +227,7 @@ def Align():   #em desenvolvimento
             #MoveDirectionPosition(frente, 0.001)
             esquerda_preto = True
         Stop()
-    while (getColor(color_sensor_Left) != PRETO and getColor(color_sensor_Right) != PRETO)
+    #while (getColor(color_sensor_Left) != PRETO and getColor(color_sensor_Right) != PRETO)
 
 
 def MoveDirectionSquare(direcao, n):   #Anda n quadrados pra frente ou pra trás
