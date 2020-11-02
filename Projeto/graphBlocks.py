@@ -18,13 +18,13 @@ matrix = [
     ['B', 4]
 ]
 
-delivery_locals = {'R': [74], 'Y': [73, 75], 'B': [72, 76], 'G': [71, 77], 'W': [14]}
+delivery_locals = {'R': [74], 'Y': [73, 75], 'B': [72, 76], 'G': [71, 77], 'W': [14], 'K': [14]}
 stock_locals = {0: 32, 1: 33, 2: 42, 3:43, 4: 35, 5: 36, 6: 45, 7: 46}
-blockPoints = {'W': 750, 'R': 100, 'Y': 100, 'B': 100, 'G': 100}
+blockPoints = {'W': 1000,'K':500, 'R': 100, 'Y': 100, 'B': 100, 'G': 100}
 initialPosition = 11
 
 n = len(matrix)+1
-print(n)
+#print(n)
 all_sets = []
 g = {}
 p = []
@@ -43,7 +43,7 @@ def BlockDistances(start, end):
             if (newpath < path):
                 path = newpath
                 option = count
-    print(start, end, path)
+   # print(start, end, path)
     return path, option
         
 
@@ -78,7 +78,7 @@ def get_path(matrix):
     rest = (2,)
     for i in range(3, len(matrix) + 1):
         rest = rest + (i,)
-    print(rest)
+    #print(rest)
         
     #rest = (2,3,4, 5, 6)
     get_minimum(1, rest, matrix)
@@ -97,7 +97,7 @@ def get_path(matrix):
                 break
     #print('1}')
     print(order)
-    return
+    return order
 
 
 def get_minimum(k, a, matrix):
@@ -121,6 +121,6 @@ def get_minimum(k, a, matrix):
     return g[k, a]
 
 
-get_path(createGraphBlocks(matrix))
+#get_path(createGraphBlocks(matrix))
 
 #print(blockPoints['W'])

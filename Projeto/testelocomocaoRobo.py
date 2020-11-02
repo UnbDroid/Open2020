@@ -12,9 +12,11 @@ except:
     print ('--------------------------------------------------------------')
     print ('')
 
+
 import math
 import time
 import numpy as np
+import graphBlocks as gb
 
 PRETO = 0
 VERMELHO = 1
@@ -28,6 +30,27 @@ EAST = 2
 WEST = 3
 axisX = 0
 axisY = 1
+frente = 1
+tras = -1
+direita = 1
+esquerda = -1
+TERCEIRO_ANDAR = 0.12
+SEGUNDO_ANDAR = 0.01
+PRIMEIRO_ANDAR = -0.1
+cube = 0
+
+
+
+
+################# TESTEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ##########################33
+matrix = [
+    ['W', 0, 0],
+    ['R', 3, 2]
+#    ['W', 1, 1],   
+#    ['G', 7, 2],
+#    ['B', 4, 3]
+]
+################## TESTEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE #######################
 
 def PrintSim(mensagem):
     sim.simxAddStatusbarMessage(clientID, mensagem, sim.simx_opmode_oneshot_wait)
@@ -36,6 +59,19 @@ def TimeOut(dist, startTime):
     currenttime = time.time()
     #print(startTime, currenttime)
     if (currenttime - startTime > abs(dist*100 + 1)):
+        return True
+    return False
+
+def TimeOutDist(dist, startTime):
+    currenttime = time.time()
+    # print(startTime, currenttime)
+    if (currenttime - startTime > abs(dist * 100 + 1)):
+        return True
+    return False
+
+def TimeOutAng(ang, startTime):
+    currenttime = time.time()
+    if (currenttime - startTime > abs(ang * 100 + 1)):
         return True
     return False
 
@@ -53,6 +89,12 @@ def getDistanceIR(sensor):
         distance = max_distance_IR
     #print(distance)
     return distance
+
+def getCubeHandle(sensor):
+    erro = 1
+    while (erro != 0): 
+        erro, detectable, distancePoint, detectedObjectHandle, detectedSurface = sim.simxReadProximitySensor(clientID, sensor, sim.simx_opmode_streaming)
+    return detectedObjectHandle
 
 def getColor(sensor):
     min_color_value = 200
@@ -79,17 +121,255 @@ def getColor(sensor):
     if (rgb_color == 111):
         return BRANCO
     return PRETO
-    
 
+### FUNÇÕES CUBOS
+def grab(cube):
+    #erro, cubo = sim.simxGetObjectHandle(clientID, cube, sim.simx_opmode_blocking)
+    erro, pa = sim.simxGetObjectHandle(clientID,'Cuboid_acoplador',sim.simx_opmode_blocking)
+    # erro =1
+    # while erro != 0:
+    #    erro = sim.simxSetObjectIntParameter(clientID, cube, sim.sim_shapeintparam_respondable, 0, sim.simx_opmode_oneshot)
+    #    print('respondable', erro)
+    # time.sleep(1)
+    # erro = 1
+    # while erro != 0:
+    #    erro = sim.simxSetObjectIntParameter(clientID, cube, sim.sim_shapeintparam_static, 1, sim.simx_opmode_oneshot)
+    #    print('dynamic', erro)
+    # time.sleep(1)
+    #print(sim.simxSetModelProperty(clientID, cubo, sim.sim_modelproperty_not_dynamic, sim.simx_opmode_oneshot))
+    #time.sleep(1)
+    erro = 1
+    while erro != 0:
+        erro = sim.simxSetObjectParent(clientID, cube, pa, True, sim.simx_opmode_oneshot)
+        print('parent', erro)
+    time.sleep(3)
+
+
+def leave(cube):
+    #erro, cubo = sim.simxGetObjectHandle(clientID, cube, sim.simx_opmode_blocking)
+    erro, pa = sim.simxGetObjectHandle(clientID,'Cuboid_acoplador',sim.simx_opmode_blocking)
+    sim.simxSetObjectParent(clientID, cube, -1, True, sim.simx_opmode_oneshot_wait)
+    erro =1
+    while erro != 0:
+        erro = sim.simxSetObjectIntParameter(clientID, cube, sim.sim_shapeintparam_respondable, 1, sim.simx_opmode_oneshot)
+        #print('respondable', erro)
+    time.sleep(0.1)
+    erro = 1
+    while erro != 0:
+       erro = sim.simxSetObjectIntParameter(clientID, cube, sim.sim_shapeintparam_static, 0, sim.simx_opmode_oneshot)
+       #print('dynamic', erro)
+    #print(sim.simxSetModelProperty(clientID, cubo, sim.sim_modelproperty_not_dynamic, sim.simx_opmode_oneshot))
+    time.sleep(0.1)
+    
+    
+    
+## FUNÇÕES DA GARRA ##########################################
+
+def subir_elevador(altura):
+    sim.simxSetJointTargetPosition(clientID,elevador,altura,sim.simx_opmode_oneshot) 
+    time.sleep(1)
+
+def descer_elevador():
+    sim.simxSetJointTargetPosition(clientID,elevador,-0.15,sim.simx_opmode_oneshot)
+    time.sleep(1)
+
+def abrir_garra():
+    sim.simxPauseCommunication(clientID, True)
+    sim.simxSetJointTargetPosition(clientID,paDireita,0.04,sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetPosition(clientID,paEsquerda,0.04,sim.simx_opmode_oneshot)
+    sim.simxPauseCommunication(clientID, False)
+    time.sleep(1)
+
+def fechar_garra(): 
+    sim.simxPauseCommunication(clientID, True)
+    sim.simxSetJointTargetPosition(clientID,paDireita,0.025,sim.simx_opmode_oneshot) 
+    sim.simxSetJointTargetPosition(clientID,paEsquerda,0.025,sim.simx_opmode_oneshot)
+    sim.simxPauseCommunication(clientID, False)
+    time.sleep(1)
+
+## FUNÇÕES PEGAR CUBO ########################################
+
+def empurrar_cubo():
+    MoveDirectionPosition(tras, 0.012)
+    fechar_garra()
+    while(getDistanceIR(irLeft) > 0.01 and getDistanceIR(irRight) > 0.01):
+        MoveDirectionPosition(frente, 0.001)
+    MoveDirectionPosition(frente, 0.004)
+
+def pegar_cubo():
+    abrir_garra()
+    descer_elevador()
+    fechar_garra()
+    subir_elevador(SEGUNDO_ANDAR)
+
+def chegar_perto_prateleira():
+    a = getDistanceIR(irLeft)
+    b = getDistanceIR(irRight)
+    while(a > 0.07 or b > 0.07):
+        #print(getDistanceIR(irLeft), getDistanceIR(irRight))
+        MoveDirectionPosition(frente, 0.001)
+        a = getDistanceIR(irLeft)
+        b = getDistanceIR(irRight)
+
+def entregar_cubo_colorido(cube):
+    descer_elevador()
+    leave(cube)
+    abrir_garra()
+    empurrar_cubo()
+    subir_elevador(SEGUNDO_ANDAR)
+
+def entregar_cubo_terceiro_andar(cube):
+    subir_elevador(TERCEIRO_ANDAR)
+    MoveDirectionPosition(frente, 0.015)
+    chegar_perto_prateleira()
+    abrir_garra()
+    leave(cube)
+    empurrar_cubo()
+    MoveDirectionPosition(tras,0.020)
+
+def entregar_cubo_segundo_andar(cube):
+    subir_elevador(SEGUNDO_ANDAR)
+    MoveDirectionPosition(frente, 0.015)
+    chegar_perto_prateleira()
+    leave(cube)
+    abrir_garra()
+    empurrar_cubo()
+    MoveDirectionPosition(tras,0.020)
+
+def entregar_cubo_primeiro_andar(cube):
+    subir_elevador(PRIMEIRO_ANDAR)
+    MoveDirectionPosition(frente, 0.015)
+    chegar_perto_prateleira()
+    leave(cube)
+    abrir_garra()
+    empurrar_cubo()
+    AlignBack()
+
+def alinhar_cubo_na_esquerda_e_pegar():
+    MoveDirectionPosition(tras, 0.015)
+    abrir_garra()
+    descer_elevador()
+    esq=0
+    while True :
+        a = getDistanceIR(irRight)
+        b = getDistanceIR(irLeft)
+        print(a,b)
+        TurnDirectionAng(direita, 1)
+        # if(b<1): 
+        #     esq=esq+1
+        # if(a<1 and esq>0):
+        #     break
+        if(b<1):
+            break
+    cube = getCubeHandle(irLeft)
+    TurnDirectionAng(esquerda, 5)
+    time.sleep(0.5)
+    # Stop()
+    # TurnRight()
+    # time.sleep(0.08)
+    # Stop()
+    print(0.06 + b)
+    MoveDirectionPosition(frente, b/10.0)
+    fechar_garra()
+    grab(cube)
+    subir_elevador(SEGUNDO_ANDAR)
+    MoveDirectionPosition(tras, b/10.0)
+    return cube
+
+def alinhar_cubo_na_direita_e_pegar():
+    MoveDirectionPosition(tras, 0.015)
+    abrir_garra()
+    descer_elevador()
+    dirt=0
+    while True :
+        a = getDistanceIR(irRight)
+        b = getDistanceIR(irLeft)
+        print(a,b)
+        TurnDirectionAng(esquerda, 1)
+        # if(a<1): 
+        #     dirt=dirt+1
+        # if(b<1 and dirt>0):
+        #     break
+        if(a < 1):
+            break
+    cube = getCubeHandle(irRight)
+    TurnDirectionAng(direita, 5)
+    time.sleep(0.5)
+    # Stop()
+    # TurnLeft()
+    # time.sleep(0.08)
+    # Stop()
+    MoveDirectionPosition(frente, a/10.0)
+    fechar_garra()
+    grab(cube)
+    print('vou subir')
+    subir_elevador(SEGUNDO_ANDAR)
+    print('subi')
+    time.sleep(2)
+    MoveDirectionPosition(tras, a/10.0)
+    return cube
+
+ 
 
 ## FUNÇÕES DE LOCOMOÇAO ######################################
 
-def MoveForward():
-    vref = 1
+def MoveDirectionPosition(direcao, dist):   #Andar reto para frente ou para trás
+    #direcao: 1 = frente, -1 = tras
+    raio = 0.003735
+    angref = direcao*dist / raio
+    erro, angRight = sim.simxGetJointPosition(clientID, robotRightMotor, sim.simx_opmode_buffer)
+    erro, angLeft = sim.simxGetJointPosition(clientID, robotLeftMotor, sim.simx_opmode_buffer)
     sim.simxPauseCommunication(clientID, True)
-    sim.simxSetJointTargetVelocity(clientID, robotRightMotor, vref, sim.simx_opmode_oneshot)
-    sim.simxSetJointTargetVelocity(clientID, robotLeftMotor, vref, sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetPosition(clientID, robotRightMotor, angref + angRight, sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetPosition(clientID, robotLeftMotor, angref + angLeft, sim.simx_opmode_oneshot)
     sim.simxPauseCommunication(clientID, False)
+    actualAngR = 0
+    actualAngL = 0
+    startTime = time.time()
+    while ((int(actualAngR * 1000) != int((angref + angRight) * 1000)) and (
+            int(actualAngL * 1000) != int((angref + angLeft) * 1000))):
+        sim.simxPauseCommunication(clientID, True)
+        sim.simxSetJointTargetPosition(clientID, robotRightMotor, angref + angRight, sim.simx_opmode_oneshot)
+        sim.simxSetJointTargetPosition(clientID, robotLeftMotor, angref + angLeft, sim.simx_opmode_oneshot)
+        sim.simxPauseCommunication(clientID, False)
+        erro, actualAngR = sim.simxGetJointPosition(clientID, robotRightMotor, sim.simx_opmode_buffer)
+        erro, actualAngL = sim.simxGetJointPosition(clientID, robotLeftMotor, sim.simx_opmode_buffer)
+        if (TimeOutDist(dist, startTime)):
+            print('timeout')
+            break
+    #print(int(actualAngR * 1000), int((angref + angRight) * 1000))
+    #print(int(actualAngL * 1000), int((angref + angLeft) * 1000))
+
+    #para melhorar: em vez de usar um chute para uma volta completa, calcular o perimetro do circulo centrado no robo
+    #e de raio igual a distancia entre o centro e a roda, dividir esse valor pelo perimetro da roda e
+    #usar a mesma conversao que a funcao de andar reto
+
+def TurnDirectionAng(direcao, ang):   #Girar para a direita ou para a esquerda pelo angulo que você escolher
+    #ang em graus
+    #direcao: 1 = direita, -1 = esquerda
+    angref = direcao*ang*(np.pi*180)*(0.04188/360)
+    erro, angRight = sim.simxGetJointPosition(clientID, robotRightMotor, sim.simx_opmode_buffer)
+    erro, angLeft = sim.simxGetJointPosition(clientID, robotLeftMotor, sim.simx_opmode_buffer)
+    sim.simxPauseCommunication(clientID, True)
+    sim.simxSetJointTargetPosition(clientID, robotRightMotor, angref + angRight, sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetPosition(clientID, robotLeftMotor, -angref + angLeft, sim.simx_opmode_oneshot)
+    sim.simxPauseCommunication(clientID, False)
+    actualAngR = 0
+    actualAngL = 0
+    startTime = time.time()
+    while ((int(actualAngR * 1000) != int((angref + angRight) * 1000)) and (
+            int(actualAngL * 1000) != int((-angref + angLeft) * 1000))):
+        sim.simxPauseCommunication(clientID, True)
+        sim.simxSetJointTargetPosition(clientID, robotRightMotor, angref + angRight, sim.simx_opmode_oneshot)
+        sim.simxSetJointTargetPosition(clientID, robotLeftMotor, -angref + angLeft, sim.simx_opmode_oneshot)
+        sim.simxPauseCommunication(clientID, False)
+        erro, actualAngR = sim.simxGetJointPosition(clientID, robotRightMotor, sim.simx_opmode_buffer)
+        erro, actualAngL = sim.simxGetJointPosition(clientID, robotLeftMotor, sim.simx_opmode_buffer)
+        if (TimeOutAng(ang, startTime)):
+            print('timeout')
+            break
+    #print(int(actualAngR * 1000), int((angref + angRight) * 1000))
+    #print(int(actualAngL * 1000), int((-angref + angLeft) * 1000))
 
 
 def MoveForwardPosition(dist):
@@ -117,29 +397,9 @@ def MoveForwardPosition(dist):
         if(TimeOut(dist, startTime)):
             print('timeout')
             break
-    print(int(actualAngR*1000), int((angref + angRight)*1000))
+   # print(int(actualAngR*1000), int((angref + angRight)*1000))
         
 
-def MoveBackward():
-    vref = 1
-    sim.simxPauseCommunication(clientID, True)
-    sim.simxSetJointTargetVelocity(clientID, robotRightMotor, -vref, sim.simx_opmode_oneshot)
-    sim.simxSetJointTargetVelocity(clientID, robotLeftMotor, -vref, sim.simx_opmode_oneshot)
-    sim.simxPauseCommunication(clientID, False)
-
-def Stop():
-    vref=0
-    sim.simxPauseCommunication(clientID, True)
-    sim.simxSetJointTargetVelocity(clientID, robotRightMotor, vref, sim.simx_opmode_oneshot)
-    sim.simxSetJointTargetVelocity(clientID, robotLeftMotor, vref, sim.simx_opmode_oneshot)
-    sim.simxPauseCommunication(clientID, False)
-
-def TurnRight():
-    vref=1
-    sim.simxPauseCommunication(clientID, True)
-    sim.simxSetJointTargetVelocity(clientID, robotRightMotor, vref, sim.simx_opmode_oneshot)
-    sim.simxSetJointTargetVelocity(clientID, robotLeftMotor, -vref, sim.simx_opmode_oneshot)
-    sim.simxPauseCommunication(clientID, False)
 
 def Align():
     while (getColor(color_sensor_Left) != PRETO or getColor(color_sensor_Right) != PRETO):
@@ -152,14 +412,61 @@ def Align():
             #Mover so roda direita
             MoveForwardPosition(0.001)
 
+    #print("To procurando a linha")
+    while ((getColor(color_sensor_Left) != PRETO and getColor(color_sensor_Right) == PRETO) or (getColor(color_sensor_Left) == PRETO and getColor(color_sensor_Right) != PRETO)):
+            #print("Achei a linha")
+        if (getColor(color_sensor_Left) != PRETO):
+            # Mover so roda esquerda
+            print("Vamos girar")
+            TurnDirectionAng(esquerda, 1)
+            print("Girando para a esquerda")
+            direita_preto = True
+            #MoveDirectionPosition(frente, 0.001)
+        elif (getColor(color_sensor_Right) != PRETO):
+            # Mover so roda direita
+            TurnDirectionAng(direita, 1)
+            print("Girando para a direita")
+            #MoveDirectionPosition(frente, 0.001)
+            esquerda_preto = True
+    #while (getColor(color_sensor_Left) != PRETO and getColor(color_sensor_Right) != PRETO)
+
+def AlignBack():
+    while (getColor(color_sensor_Left) != PRETO or getColor(color_sensor_Right) != PRETO):
+        MoveDirectionPosition(tras, 0.001)
+
 def MoveSquareForward():
-    #MoveForwardPosition(0.027)
-    #Align()
-    print('foward')
+    MoveDirectionPosition(frente, 0.027)
+    Align()
+    print('forward')
 
 def TurnInSquare(angle): #gira no centro do quadrado e vai para ponta
     print(angle)
-    
+    Align()
+    MoveDirectionPosition(tras, 0.01)
+    if(angle > 0):
+        TurnDirectionAng(esquerda, abs(angle))
+    if(angle < 0):
+        TurnDirectionAng(direita, abs(angle))
+    MoveDirectionPosition(frente, 0.005)
+    Align()
+
+
+
+
+#### Funções de lógica de movimentação ##############################################
+
+
+def realFinalPosition(finalPosition):
+    stockLocals = [32, 33, 35, 36, 42, 43, 45, 46]
+    deliveryLocals = [71, 72, 73, 74, 75, 76, 77]
+    shelf = [14]
+    if(finalPosition in deliveryLocals):
+        finalPosition -= 10
+    if(finalPosition in shelf):
+        finalPosition += 10
+    #if(finalPosition in stockLocals) #### Definir o local em que irá pegar o cubo
+    return finalPosition
+
 def arrived(currentPosition, finalPosition): #Define se chegou ao local
     if(currentPosition == finalPosition):
         return True
@@ -220,6 +527,41 @@ def correctDirection(myDirection, movement, axis): #define se o robô está vira
                     TurnInSquare(-90)
                 return WEST
 
+def turnTo(myDirection, finalDirection):
+    if(finalDirection == NORTH):
+        if(myDirection == EAST):
+            TurnInSquare(90)
+        if(myDirection == SOUTH):
+            TurnInSquare(180)
+        if(myDirection == WEST):
+            TurnInSquare(-90)
+        return NORTH
+    if(finalDirection == EAST):
+        if(myDirection == NORTH):
+            TurnInSquare(-90)
+        if(myDirection == SOUTH):
+            TurnInSquare(90)
+        if(myDirection == WEST):
+            TurnInSquare(180)
+        return EAST
+    if(finalDirection == SOUTH):
+        if(myDirection == EAST):
+            TurnInSquare(-90)
+        if(myDirection == NORTH):
+            TurnInSquare(180)
+        if(myDirection == WEST):
+            TurnInSquare(90)
+        return SOUTH
+    if(finalDirection == WEST):
+        if(myDirection == EAST):
+            TurnInSquare(180)
+        if(myDirection == SOUTH):
+            TurnInSquare(-90)
+        if(myDirection == NORTH):
+            TurnInSquare(90)
+        return WEST
+            
+
 def notStockLocal(currentPosition, movement, axis): #define se o robô está em volta de uma aŕea de carga onde não pode entrar
     if(axis == axisX):
         if(movement > 0): #Quer ir pra baixo (SUL)
@@ -236,16 +578,62 @@ def notStockLocal(currentPosition, movement, axis): #define se o robô está em 
     return True
 
 def goAround(currentPosition, myDirection): #desvia da área de carga e retorna nova posição e direção
+    #Parte de cima
     if(currentPosition == 22):
         myDirection = correctDirection(myDirection, -1, axisY)
         MoveSquareForward()
         myDirection = correctDirection(myDirection, +1, axisX)
         MoveSquareForward()
         currentPosition = 31
+    if(currentPosition == 23):
+        myDirection = correctDirection(myDirection, +1, axisY)
+        MoveSquareForward()
+        myDirection = correctDirection(myDirection, +1, axisX)
+        MoveSquareForward()
+        currentPosition = 34
+    if(currentPosition == 25):
+        myDirection = correctDirection(myDirection, -1, axisY)
+        MoveSquareForward()
+        myDirection = correctDirection(myDirection, +1, axisX)
+        MoveSquareForward()
+        currentPosition = 34
+    if(currentPosition == 26):
+        myDirection = correctDirection(myDirection, +1, axisY)
+        MoveSquareForward()
+        myDirection = correctDirection(myDirection, +1, axisX)
+        MoveSquareForward()
+        currentPosition = 37
+    #Parte de baixo
+    if(currentPosition == 52):
+        myDirection = turnTo(myDirection, WEST)
+        MoveSquareForward()
+        myDirection = turnTo(myDirection, NORTH)
+        MoveSquareForward()
+        currentPosition = 41
+    if(currentPosition == 53):
+        myDirection = turnTo(myDirection, EAST)
+        MoveSquareForward()
+        myDirection = turnTo(myDirection, NORTH)
+        MoveSquareForward()
+        currentPosition = 44
+    if(currentPosition == 55):
+        myDirection = turnTo(myDirection, WEST)
+        MoveSquareForward()
+        myDirection = turnTo(myDirection, NORTH)
+        MoveSquareForward()
+        currentPosition = 44
+    if(currentPosition == 56):
+        myDirection = turnTo(myDirection, EAST)
+        MoveSquareForward()
+        myDirection = turnTo(myDirection, NORTH)
+        MoveSquareForward()
+        currentPosition = 47
+
     return currentPosition, myDirection
 
 
 def goFromTo(currentPosition, finalPosition, myDirection):
+    finalPosition = realFinalPosition(finalPosition)
     while(not arrived(currentPosition, finalPosition)):
         moveX = (finalPosition/10) - (currentPosition/10)
         moveY =  (finalPosition%10) - (currentPosition%10)
@@ -267,91 +655,285 @@ def goFromTo(currentPosition, finalPosition, myDirection):
             currentPosition, myDirection = goAround(currentPosition, myDirection)
         print(currentPosition)
         time.sleep(1)
+    return currentPosition, myDirection
+
+def goToShelfDeliver(block, currentPosition, myDirection, cube):
+    shelf1 = [1, 6, 11]
+    shelf2 = [2, 7, 12]
+    shelf3 = [3, 8, 13]
+    shelf4 = [4, 9, 14]
+    shelf5 = [5, 10, 15]
+    if (block in shelf1):
+        currentPosition, myDirection = goFromTo(currentPosition, 22, myDirection)
+    if (block in shelf2):
+        currentPosition, myDirection = goFromTo(currentPosition, 23, myDirection)
+    if (block in shelf3):
+        currentPosition, myDirection = goFromTo(currentPosition, 24, myDirection)
+    if (block in shelf4):
+        currentPosition, myDirection = goFromTo(currentPosition, 25, myDirection)
+    if (block in shelf5):
+        currentPosition, myDirection = goFromTo(currentPosition, 26, myDirection)
+
+    myDirection = turnTo(myDirection, NORTH)
+    if(block <= 5):
+        entregar_cubo_primeiro_andar(cube)
+    elif(block <= 10):
+        entregar_cubo_segundo_andar(cube)
+    elif(block <= 15):
+        print('vou entregar')
+        entregar_cubo_terceiro_andar(cube)
+
+    return currentPosition, myDirection
+
+               
+### FUNÇÕES DESAFIO ###############################################################
+
+def getBlocksInformation(currentPosition, myDirection):
+    #Vai para a primeira área
+    currentPosition, myDirection = goFromTo(currentPosition, 22, myDirection)
+    #Se posiciona da melhor forma para enxergar os blocos
+    myDirection = turnTo(myDirection ,EAST)
+    #Align() #TurnTo ja alinha
+    MoveDirectionPosition(frente, 0.005)
+    TurnDirectionAng(direita, 90)
+    myDirection = SOUTH
+    #Usa algoritmo de visao
+    ## VISAO
+    time.sleep(3)
+    
+
+    #Vai para a segunda área
+    myDirection = turnTo(myDirection ,EAST)
+    #MoveDirectionPosition(frente, 0.020)
+    currentPosition += 1
+    currentPosition, myDirection = goFromTo(currentPosition, 25, myDirection)
+    #Se posiciona da melhor forma para enxergar os blocos
+    myDirection = turnTo(myDirection ,EAST)
+    #Align()
+    MoveDirectionPosition(frente, 0.005)
+    TurnDirectionAng(direita, 90)
+    myDirection = SOUTH
+    #Usa algoritmo de visao
+    ## VISAO
+    time.sleep(3)
+
+    myDirection = turnTo(myDirection ,EAST)
+    #MoveDirectionPosition(frente, 0.020)
+    currentPosition += 1
+    
+    order = gb.get_path(gb.createGraphBlocks(matrix))
+
+    return currentPosition, myDirection, order, matrix
+
+def course(block, matrix):
+    delivery_locals = {'R': [74], 'Y': [73, 75], 'B': [72, 76], 'G': [71, 77], 'W': [14], 'K': [14]}
+    stock_locals = {0: 32, 1: 33, 2: 42, 3:43, 4: 35, 5: 36, 6: 45, 7: 46}
+    hiddenBlock = False
+
+    #definindo quadrante para buscar bloco
+    if (stock_locals[matrix[block][1]] == 32 or stock_locals[matrix[block][1]] == 35):
+        if (matrix[block][2] == 0):
+            blockLocalPickup = stock_locals[matrix[block][1]]
+        if (matrix[block][2] == 1):
+            blockLocalPickup = stock_locals[matrix[block][1]] - 10
+        if (matrix[block][2] == 2):
+            blockLocalPickup = stock_locals[matrix[block][1]] - 1
+        if (matrix[block][2] == 3): #caso escondido
+            blockLocalPickup = stock_locals[matrix[block][1]]
+            hiddenBlock = True
+
+    if (stock_locals[matrix[block][1]] == 33 or stock_locals[matrix[block][1]] == 36):
+        if (matrix[block][2] == 0):
+            blockLocalPickup = stock_locals[matrix[block][1]] -10
+        if (matrix[block][2] == 1):
+            blockLocalPickup = stock_locals[matrix[block][1]]
+        if (matrix[block][2] == 2): #caso escondido
+            blockLocalPickup = stock_locals[matrix[block][1]]
+            hiddenBlock = True 
+        if (matrix[block][2] == 3): 
+            blockLocalPickup = stock_locals[matrix[block][1]] + 1
+    
+    if (stock_locals[matrix[block][1]] == 42 or stock_locals[matrix[block][1]] == 45):
+        if (matrix[block][2] == 0):
+            blockLocalPickup = stock_locals[matrix[block][1]] - 1
+        if (matrix[block][2] == 1): #caso escondido
+            blockLocalPickup = stock_locals[matrix[block][1]]
+            hiddenBlock = True
+        if (matrix[block][2] == 2):
+            blockLocalPickup = stock_locals[matrix[block][1]]
+        if (matrix[block][2] == 3):
+            blockLocalPickup = stock_locals[matrix[block][1]] + 10
         
+    if (stock_locals[matrix[block][1]] == 43 or stock_locals[matrix[block][1]] == 44):
+        if (matrix[block][2] == 0): #caso escondido
+            blockLocalPickup = stock_locals[matrix[block][1]]
+            hiddenBlock = True
+        if (matrix[block][2] == 1): 
+            blockLocalPickup = stock_locals[matrix[block][1]] + 1
+        if (matrix[block][2] == 2):
+            blockLocalPickup = stock_locals[matrix[block][1]] + 10
+        if (matrix[block][2] == 3):
+            blockLocalPickup = stock_locals[matrix[block][1]]
+    
+    #definindo quadrante para deixar bloco
+    if(matrix[block][0] == 'W' or matrix[block][0] == 'K'):
+        blockLocalDelivery = delivery_locals[matrix[block][0]][0]
+    elif(matrix[block][1] < 4): #Esta do lado esquerdo
+        blockLocalDelivery = delivery_locals[matrix[block][0]][0]
+    else: #Esta do lado direito
+        blockLocalDelivery = delivery_locals[matrix[block][0]][1]
+
+    blockColor = matrix[block][0]
+
+    return blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock
             
+
+def winOPEN():
+    initialPosition = 11
+    initialDirection = SOUTH
+    #currentPosition, myDirection, order, matrix = getBlocksInformation(initialPosition, initialDirection)
+    order = [1, 2, 3]
+    pickLater = []
+    currentPosition = initialPosition
+    myDirection = initialDirection
+    for i in range(1, len(order)):
+        blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock = course(order[i] - 2, matrix)
+        if (not hiddenBlock):
+            currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
+            cube = alinhar_cubo_na_direita_e_pegar()
+            currentPosition, myDirection = goFromTo(currentPosition, blockLocalDelivery, myDirection)
+            if(blockColor == 'K' or blockColor == 'W'):
+                #identifica número
+                blockNumber = 3 ##### MODIFICAR QUANDO IDENTIFICAR
+                currentPosition, myDirection = goToShelfDeliver(blockNumber, currentPosition, myDirection, cube)
+            else:
+                entregar_cubo_colorido(cube)
+        else:
+            pickLater.append([blockColor, blockLocalPickup, blockLocalDelivery])
+
+
+
+
 
 
 ##########################################
 
-goFromTo(13, 62, SOUTH)
- 
-# print ('Program started')
-# sim.simxFinish(-1) # just in case, close all opened connections
-# clientID = sim.simxStart('127.0.0.1',19999,True,True,5000,5)
-# robotname = 'Robot'
-# #targetname = 'Target1'
-# if clientID != -1:
-#     sim.simxStartSimulation(clientID, sim.simx_opmode_oneshot_wait)
-#     print ('Connected to remote API server')
-#     sim.simxAddStatusbarMessage(clientID,'Funcionando...',sim.simx_opmode_oneshot_wait)
-#     time.sleep(0.02)
 
-#     # Coletar handles
-#     #Robô
-#     erro, robot = sim.simxGetObjectHandle(clientID, robotname, sim.simx_opmode_oneshot_wait) 
-#     #Motores
-#     [erro, robotLeftMotor] = sim.simxGetObjectHandle(clientID, 'Revolute_joint2',sim.simx_opmode_oneshot_wait)
-#     [erro, robotRightMotor] = sim.simxGetObjectHandle(clientID, 'Revolute_joint1', sim.simx_opmode_oneshot_wait)
-#     #Sensores
-#     erro, irRight = sim.simxGetObjectHandle(clientID, 'Sensor_IR_direito', sim.simx_opmode_oneshot_wait)
-#     erro, irLeft = sim.simxGetObjectHandle(clientID, 'Sensor_IR_esquerdo', sim.simx_opmode_oneshot_wait)
-#     erro , color_sensor_Left = sim.simxGetObjectHandle(clientID, 'Sensor_cor_esquerda', sim.simx_opmode_blocking)
-#     erro , color_sensor_Right = sim.simxGetObjectHandle(clientID, 'Sensor_cor_direita', sim.simx_opmode_blocking)
+
+print ('Program started')
+sim.simxFinish(-1) # just in case, close all opened connections
+clientID = sim.simxStart('127.0.0.1',19999,True,True,5000,5)
+robotname = 'Robot'
+#targetname = 'Target1'
+if clientID != -1:
+    sim.simxStartSimulation(clientID, sim.simx_opmode_oneshot_wait)
+    print ('Connected to remote API server')
+    sim.simxAddStatusbarMessage(clientID,'Funcionando...',sim.simx_opmode_oneshot_wait)
+    time.sleep(0.02)
+
+    # Coletar handles
+    #Robô
+    erro, robot = sim.simxGetObjectHandle(clientID, robotname, sim.simx_opmode_blocking) 
+    #Motores
+    [erro, robotLeftMotor] = sim.simxGetObjectHandle(clientID, 'Revolute_joint2', sim.simx_opmode_blocking)
+    [erro, robotRightMotor] = sim.simxGetObjectHandle(clientID, 'Revolute_joint1', sim.simx_opmode_blocking)
+    #Garra
+    erro,paEsquerda=sim.simxGetObjectHandle(clientID,'joint_pa_esquerda_garra',sim.simx_opmode_blocking)
+    erro,paDireita=sim.simxGetObjectHandle(clientID,'joint_pa_direita_garra',sim.simx_opmode_blocking)
+    erro,elevador=sim.simxGetObjectHandle(clientID,'joint_acoplador_garra',sim.simx_opmode_blocking)
+    #Sensores
+    erro, irRight = sim.simxGetObjectHandle(clientID, 'Sensor_IR_direito', sim.simx_opmode_blocking)
+    erro, irLeft = sim.simxGetObjectHandle(clientID, 'Sensor_IR_esquerdo', sim.simx_opmode_blocking)
+    erro , color_sensor_Left = sim.simxGetObjectHandle(clientID, 'Sensor_cor_esquerda', sim.simx_opmode_blocking)
+    erro , color_sensor_Right = sim.simxGetObjectHandle(clientID, 'Sensor_cor_direita', sim.simx_opmode_blocking)
+
     
 
-#     # Criar stream de dados
-#     [erro, positionrobot] = sim.simxGetObjectPosition(clientID, robot, -1, sim.simx_opmode_streaming)
-#     #[erro, positiontarget] = sim.simxGetObjectPosition(clientID, target, -1, sim.simx_opmode_streaming)
-#     erro, angLeft = sim.simxGetJointPosition(clientID, robotLeftMotor, sim.simx_opmode_streaming)
-#     erro, angRight = sim.simxGetJointPosition(clientID, robotRightMotor, sim.simx_opmode_streaming)
-#     [erro, orientationrobot] = sim.simxGetObjectOrientation(clientID,robot,-1,sim.simx_opmode_streaming)
-#     sim.simxReadProximitySensor(clientID, irRight, sim.simx_opmode_streaming)
-#     sim.simxReadProximitySensor(clientID, irLeft, sim.simx_opmode_streaming)
-#     sim.simxGetVisionSensorImage(clientID, color_sensor_Left, 0, sim.simx_opmode_streaming)
-#     sim.simxGetVisionSensorImage(clientID, color_sensor_Right, 0, sim.simx_opmode_streaming)
+    # Criar stream de dados
+    [erro, positionrobot] = sim.simxGetObjectPosition(clientID, robot, -1, sim.simx_opmode_streaming)
+    #[erro, positiontarget] = sim.simxGetObjectPosition(clientID, target, -1, sim.simx_opmode_streaming)
+    erro, angLeft = sim.simxGetJointPosition(clientID, robotLeftMotor, sim.simx_opmode_streaming)
+    erro, angRight = sim.simxGetJointPosition(clientID, robotRightMotor, sim.simx_opmode_streaming)
+    [erro, orientationrobot] = sim.simxGetObjectOrientation(clientID,robot,-1,sim.simx_opmode_streaming)
+    sim.simxReadProximitySensor(clientID, irRight, sim.simx_opmode_streaming)
+    sim.simxReadProximitySensor(clientID, irLeft, sim.simx_opmode_streaming)
+    sim.simxGetVisionSensorImage(clientID, color_sensor_Left, 0, sim.simx_opmode_streaming)
+    sim.simxGetVisionSensorImage(clientID, color_sensor_Right, 0, sim.simx_opmode_streaming)
 
-#     time.sleep(2)
+    time.sleep(2)
+    initialPosition = 11
+    initialDirection = SOUTH
+    winOPEN()
+    #getBlocksInformation(initialPosition, initialDirection)
+    # TurnDirectionAng(direita, 90)
+    # # time.sleep(10)
+    # currentPosition, myDirection = goFromTo(initialPosition, 32, initialDirection)
+    # print('cheguei pra pegar cubo')
+    # currentPosition, myDirection = goFromTo(currentPosition, 14, myDirection)
+    # currentPosition, myDirection = goToShelfDeliver(8, currentPosition, myDirection)
+    # MoveDirectionPosition(tras, 0.01)
+    # alinhar_cubo_na_direita_e_pegar()
+    # currentPosition, myDirection = goFromTo(currentPosition, 71, myDirection)
+    # entregar_cubo_colorido()
+    erro, cube = sim.simxGetObjectHandle(clientID, 'Cuboid3', sim.simx_opmode_blocking)
+    #leave(cube)
+    #time.sleep(5)
+   
+    # erro = 1
+    # while erro != 0:
+    #     erro = sim.simxSetObjectIntParameter(clientID, cube, sim.sim_shapeintparam_respondable, 0, sim.simx_opmode_oneshot)
+    #     print('respondable', erro)
+    # erro = 1
+    # time.sleep(3)
+    # while erro != 0:
+    #    erro = sim.simxSetObjectIntParameter(clientID, cube, sim.sim_shapeintparam_static, 1, sim.simx_opmode_oneshot)
+    #    print('dynamic', erro)
+    # time.sleep(3)
+    # cube = alinhar_cubo_na_direita_e_pegar()
+    # entregar_cubo_colorido(cube)
+    
+    # currentPosition, myDirection = goFromTo(currentPosition , 75, myDirection)
+    #goToShelfDeliver(4, currentPosition, myDirection)
+    # # Comandos motores
+    # PrintSim('comecei')
+    # i = 0
+    # while (i < 5):
+    #     MoveForwardPosition(0.002)
+    #     i += 1
+    # #PrintSim('terminei')
+    # #time.sleep(5)
+    # MoveForwardPosition(0.0015)
+    # #time.sleep(2)
+    #
+    #Comando Sensores
+    # for i in range(2):
+    #     MoveSquareForward()
 
-#     # # Comandos motores
-#     # PrintSim('comecei')
-#     # i = 0
-#     # while (i < 5):
-#     #     MoveForwardPosition(0.002)
-#     #     i += 1
-#     # #PrintSim('terminei')
-#     # #time.sleep(5)
-#     # MoveForwardPosition(0.0015)
-#     # #time.sleep(2)
-#     #
-#     #Comando Sensores
-#     for i in range(2):
-#         MoveSquareForward()
-
-#     cont = 0
-#     while(cont < 100):
-#         cont+=1
-#         # Coletar dados robôs e alvos
-#         [erro, [xr,yr,zr]] = sim.simxGetObjectPosition(clientID, robot, -1, sim.simx_opmode_buffer)
-#         #[erro, [xt,yt,zt]] = sim.simxGetObjectPosition(clientID, target, -1, sim.simx_opmode_buffer)
-#         [erro, [alpha, beta, gamma]] = sim.simxGetObjectOrientation(clientID, robot, -1, sim.simx_opmode_buffer)
+    # cont = 0
+    # while(cont < 100):
+    #     cont+=1
+    #     # Coletar dados robôs e alvos
+    #     [erro, [xr,yr,zr]] = sim.simxGetObjectPosition(clientID, robot, -1, sim.simx_opmode_buffer)
+    #     #[erro, [xt,yt,zt]] = sim.simxGetObjectPosition(clientID, target, -1, sim.simx_opmode_buffer)
+    #     [erro, [alpha, beta, gamma]] = sim.simxGetObjectOrientation(clientID, robot, -1, sim.simx_opmode_buffer)
 
         
-#         #sim.simxAddStatusbarMessage(clientID, 'A posição em x é '+str(xr) + ' e a posição em y é '+str(yr), sim.simx_opmode_oneshot_wait)
+        #sim.simxAddStatusbarMessage(clientID, 'A posição em x é '+str(xr) + ' e a posição em y é '+str(yr), sim.simx_opmode_oneshot_wait)
 
         
 
-#     # Stop simulation:
-#     # sim.simxStopSimulation(clientID, sim.simx_opmode_oneshot_wait)
+    # Stop simulation:
+    # sim.simxStopSimulation(clientID, sim.simx_opmode_oneshot_wait)
 
-#     # Pause simulation
-#     sim.simxPauseSimulation(clientID,sim.simx_opmode_oneshot_wait)
+    # Pause simulation
+    sim.simxPauseSimulation(clientID,sim.simx_opmode_oneshot_wait)
 
-#     # Now close the connection to V-REP:
-#     sim.simxAddStatusbarMessage(clientID, 'Programa pausado', sim.simx_opmode_blocking )
-#     sim.simxFinish(clientID)
-# else:
-#     print ('Failed connecting to remote API server')
-# print ('Program ended')
+    # Now close the connection to V-REP:
+    sim.simxAddStatusbarMessage(clientID, 'Programa pausado', sim.simx_opmode_blocking )
+    sim.simxFinish(clientID)
+else:
+    print ('Failed connecting to remote API server')
+print ('Program ended')
 
 
 
