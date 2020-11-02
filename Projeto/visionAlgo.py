@@ -33,7 +33,7 @@ def getImage(_camera):
 	img = img[(int(res[0]/5)):res[0]-(int(res[0]/10)), 0:res[1]]
 	img = cv2.copyMakeBorder(img, int(res[0]*5/30), 0, 0, 0, cv2.BORDER_CONSTANT)
 
-	cv2.imwrite('0src.png', img)
+	cv2.imwrite('./imgs/0src.png', img)
 	return img, nres
 
 def basicFilter(_src, _op):
@@ -51,7 +51,13 @@ def basicFilter(_src, _op):
 		hsv_lower = np.array([0,0,145])
 		hsv_upper = np.array([10,100,160])
 		mask = cv2.inRange(hsv, hsv_lower, hsv_upper)
-
+	elif(_op == 2):
+		hsv_lower = np.array([0,0,40])
+		hsv_upper = np.array([179,255,60])
+		mask = cv2.inRange(hsv, hsv_lower, hsv_upper)
+		hsv_lower = np.array([0,0,245])
+		hsv_upper = np.array([179,255,255])
+		mask2 = cv2.inRange(hsv, hsv_lower, hsv_upper)
 
 	#Copiar a mascara para a imagem inicial:
 	_src2 = _src.copy()
@@ -59,22 +65,22 @@ def basicFilter(_src, _op):
 
 	#Transformar para cinza:
 	img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-	cv2.imwrite('1gray.png', img)
+	cv2.imwrite('./imgs/1gray.png', img)
 		
 	# Media:
 	img = cv2.medianBlur(img, 3)
-	cv2.imwrite('4median.png', img)
+	cv2.imwrite('./imgs/4median.png', img)
 	
 
 	
-	if(_op == 0):
+	if(_op == 0 or _op == 2):
 		img2 = cv2.bitwise_and(_src2, _src2, mask=mask2)
 		img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-		cv2.imwrite('1gray2.png', img2)
+		cv2.imwrite('./imgs/1gray2.png', img2)
 		img2 = cv2.medianBlur(img2, 3)
-		cv2.imwrite('4median2.png', img2)
+		cv2.imwrite('./imgs/4median2.png', img2)
 		nimg = cv2.bitwise_or(img, img2)
-		cv2.imwrite('4median3.png', nimg)
+		cv2.imwrite('./imgs/4median3.png', nimg)
 	else:
 		nimg = img.copy()
 
@@ -95,7 +101,7 @@ def findUseful(_src, _img, _factor):
 	"Acha os contornos uteis da imagem"
 	#Pega todas as bordas por Canny:
 	edges = cv2.Canny(_img, 100, 200)
-	cv2.imwrite('5edges.png', edges)
+	cv2.imwrite('./imgs/5edges.png', edges)
 	foundCenters = np.empty(shape=[0,2])
 	foundShapes = np.empty(shape=[0,5,2])
 	foundColors = np.empty(shape=[0,3])
@@ -126,7 +132,7 @@ def findUseful(_src, _img, _factor):
 				foundColors = np.append(foundColors, [_src[cy][cx]], axis=0)
 				cv2.drawContours(_src, k, -1, (255,0,255), 3)
 
-	cv2.imwrite('8centers.png', _src)
+	cv2.imwrite('./imgs/8centers.png', _src)
 	print(foundCenters)
 	print(foundColors)
 	return foundShapes, foundColors, foundCenters
@@ -198,24 +204,36 @@ def createArray(_foundCenters, _foundColors, _rangeY, _rangeX):
 		j+=1
 	return squares
 
-def isolateFace(_img, _res):
+def isolateFace(_src, _img, _res, _op):
 	img = _img.copy()
 	img = img[int(_res[0]/2):_res[0], 0:int(_res[1]*0.7)]
+	minV = 127
+	factor = 0.15
+	if(_op): 
+		minV = 5
+		src = img.copy()
+
+	thres, img = cv2.threshold(img, minV, 255, cv2.THRESH_BINARY)
+
+	if(_op):
+		kernel = np.ones((5,5),np.uint8)
+		img = cv2.dilate(img,kernel,iterations = 1)
+		img = cv2.erode(img,kernel,iterations = 1)
+
 
 	edges = cv2.Canny(img, 100, 200)
 	cnts, hier = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-	thres, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
-
-	cv2.imwrite('5face.png', img)
 	
 
-
-	approx = np.zeros((2,2,1,2))
-	for cnt in cnts:
-		perimeter = cv2.arcLength(cnt, True)
-		if(perimeter > 500):
-			print("S")
-			approx = cv2.approxPolyDP(cnt, 0.2 * perimeter, True)
+	cv2.imwrite('./imgs/5face.png', img)
+	
+	approx = [0]
+	while(len(approx) < 2 and factor > 0):
+		for cnt in cnts:
+			perimeter = cv2.arcLength(cnt, True)
+			if(perimeter > 500):
+				approx = cv2.approxPolyDP(cnt, factor * perimeter, True)
+		factor = factor + 0.2
 
 	print(approx)
 
@@ -227,97 +245,11 @@ def isolateFace(_img, _res):
 
 	img = img[height:maxHei, width:maxWid]
 
-	return img, [maxHei-height,maxWid-width], 0
+	if(_op):
+		img = src[height:maxHei, width:maxWid]
+		thres, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
 
-def nothing(x):
-	pass
-
-def test(camera):
-
-	image, resol = getImage(camera)
-
-	# Create a window
-	cv2.namedWindow('image')
-	cv2.namedWindow('track')
-
-	boundaries = [
-		([17, 15, 100], [50, 56, 200]),
-		([86, 31, 4], [220, 88, 50]),
-		([25, 146, 190], [62, 174, 250]),
-		([103, 86, 65], [145, 133, 128])
-	]
-
-	# create trackbars for color change
-	cv2.createTrackbar('HMin','track',0,179,nothing) # Hue is from 0-179 for Opencv
-	cv2.createTrackbar('SMin','track',0,255,nothing)
-	cv2.createTrackbar('VMin','track',0,255,nothing)
-	cv2.createTrackbar('HMax','track',0,179,nothing)
-	cv2.createTrackbar('SMax','track',0,255,nothing)
-	cv2.createTrackbar('VMax','track',0,255,nothing)
-
-	# Set default value for MAX HSV trackbars.
-	cv2.setTrackbarPos('HMax', 'track', 179)
-	cv2.setTrackbarPos('SMax', 'track', 255)
-	cv2.setTrackbarPos('VMax', 'track', 255)
-
-	# Initialize to check if HSV min/max value changes
-	hMin = sMin = vMin = hMax = sMax = vMax = 0
-	phMin = psMin = pvMin = phMax = psMax = pvMax = 0
-
-	output = image
-	wait_time = 33
-
-	#for (lower, upper) in boundaries:
-	#	# create NumPy arrays from the boundaries
-	#	lower = np.array(lower, dtype = "uint8")
-	#	upper = np.array(upper, dtype = "uint8")
-	#	# find the colors within the specified boundaries and apply
-	#	# the mask
-	#	mask = cv2.inRange(image, lower, upper)
-	#	output = cv2.bitwise_and(image, image, mask = mask)
-	#	# show the images
-	#	cv2.imshow("images", np.hstack([image, output]))
-	#	cv2.waitKey(0)
-
-	while(1):
-		frame, resol = getImage(camera)
-		# get current positions of all trackbars
-		hMin = cv2.getTrackbarPos('HMin','track')
-		sMin = cv2.getTrackbarPos('SMin','track')
-		vMin = cv2.getTrackbarPos('VMin','track')
-
-		hMax = cv2.getTrackbarPos('HMax','track')
-		sMax = cv2.getTrackbarPos('SMax','track')
-		vMax = cv2.getTrackbarPos('VMax','track')
-
-		# Set minimum and max HSV values to display
-		lower = np.array([hMin, sMin, vMin])
-		upper = np.array([hMax, sMax, vMax])
-
-		# Create HSV Image and threshold into a range.
-		hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-		mask = cv2.inRange(hsv, lower, upper)
-		output = cv2.bitwise_and(image,image, mask= mask)
-
-		# Print if there is a change in HSV value
-		if( (phMin != hMin) | (psMin != sMin) | (pvMin != vMin) | (phMax != hMax) | (psMax != sMax) | (pvMax != vMax) ):
-			print("(hMin = %d , sMin = %d, vMin = %d), (hMax = %d , sMax = %d, vMax = %d)" % (hMin , sMin , vMin, hMax, sMax , vMax))
-			phMin = hMin
-			psMin = sMin
-			pvMin = vMin
-			phMax = hMax
-			psMax = sMax
-			pvMax = vMax
-
-		# Display output image
-		cv2.imshow('image',output)
-
-		# Wait longer to prevent freeze for videos.
-		if cv2.waitKey(wait_time) & 0xFF == ord('q'):
-			break
-
-	cv2.destroyAllWindows()
-
+	return img, [maxHei-height,maxWid-width]
 
 def resolveVision(_clientID, _sigValue):
 	global clientID
@@ -343,10 +275,8 @@ def resolveVision(_clientID, _sigValue):
 		cv2.drawContours(frame, shp.astype(int), -1, (255,0,255), 3)
 		j+=1
 
-	cv2.imwrite('7Final.png', frame)
+	cv2.imwrite('./imgs/7Final.png', frame)
 	return foundCubes
-
-
 
 def getNumber(_clientID):
 	global clientID
@@ -360,12 +290,31 @@ def getNumber(_clientID):
 
 	src = frame.copy()
 	img = basicFilter(src, 1)
-	isolImg, nres, points = isolateFace(img, resol)
+	isolImg, nres = isolateFace(frame.copy(), img, resol, 0)
 
 
-	cv2.imwrite('7new.png', isolImg)
+	cv2.imwrite('./imgs/7new.png', isolImg)
 	text = pytes.image_to_string(isolImg, config='--oem 2 --psm 7 -c tessedit_char_whitelist=0123456789')
-	op2 = compareFaces.compareNumber(isolImg, nres)
-	print(text, op2)
 
-	return
+	op2 = compareFaces.compareNumber(isolImg, nres)
+	
+	return (text, op2)
+
+def getCode(_clientID):
+	global clientID
+	clientID = _clientID
+
+	# Get the camera handle:
+	erro, camera = sim.simxGetObjectHandle(clientID, 'Vis_Num', sim.simx_opmode_oneshot_wait)
+	# Start the Stream
+	erro, res, image = sim.simxGetVisionSensorImage(clientID, camera, 0, sim.simx_opmode_streaming)
+	frame, resol = getImage(camera)
+	src = frame.copy()
+		
+	img = basicFilter(src, 2)
+	isolImg, nres = isolateFace(frame.copy(), img, resol, 1)
+	cv2.imwrite('./imgs/7new.png', isolImg)
+
+	op2 = compareFaces.compareBar(isolImg, nres)
+
+	return op2
