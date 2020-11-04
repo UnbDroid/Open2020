@@ -17,6 +17,7 @@ import math
 import time
 import numpy as np
 import graphBlocks as gb
+import visionAlgo as vis
 
 PRETO = 0
 VERMELHO = 1
@@ -791,9 +792,8 @@ def getBlocksInformation(currentPosition, myDirection):
     MoveDirectionPosition(frente, 0.05)
     TurnDirectionAng(direita, 90)
     myDirection = SOUTH
-    #Usa algoritmo de visao
-    ## VISAO
-    time.sleep(3)
+    matrix0 = vis.resolveVision(clientID,0)
+    #time.sleep(3)
     
 
     #Vai para a segunda área
@@ -807,15 +807,17 @@ def getBlocksInformation(currentPosition, myDirection):
     MoveDirectionPosition(frente, 0.05)
     TurnDirectionAng(direita, 90)
     myDirection = SOUTH
-    #Usa algoritmo de visao
-    ## VISAO
-    time.sleep(3)
+    matrix1 = vis.resolveVision(clientID,1)
+    #time.sleep(3)
 
     myDirection = turnTo(myDirection ,EAST)
     #MoveDirectionPosition(frente, 0.020)
     currentPosition += 1
-    
+    print(matrix0)
+    print(matrix1)
+    matrix = np.concatenate(matrix0, matrix1)
     order = gb.get_path(gb.createGraphBlocks(matrix))
+    
 
     return currentPosition, myDirection, order, matrix
 
@@ -930,13 +932,13 @@ def grabBlock(currentPosition, blockPosition, myDirection):
 def winOPEN():
     initialPosition = 11
     initialDirection = SOUTH
-    #currentPosition, myDirection, order, matrix = getBlocksInformation(initialPosition, initialDirection)
+    currentPosition, myDirection, order, matrix = getBlocksInformation(initialPosition, initialDirection)
     #order = [1, 2, 3]
     pickLater = []
     #APENAS TESTE
-    order = gb.get_path(gb.createGraphBlocks(matrix))
-    currentPosition = initialPosition
-    myDirection = initialDirection
+    #order = gb.get_path(gb.createGraphBlocks(matrix))
+    #currentPosition = initialPosition
+    #myDirection = initialDirection
     #FIM DE TESTE
     for i in range(1, len(order)):
         blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition = course(order[i] - 2, matrix)
