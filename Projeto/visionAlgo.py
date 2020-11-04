@@ -106,6 +106,7 @@ def findUseful(_src, _img, _factor):
 	foundShapes = np.empty(shape=[0,5,2])
 	foundColors = np.empty(shape=[0,3])
 	shapeArea = np.empty(shape=[0])
+	errorim = _src.copy()
 	
 
 	#Aproxima os possiveis contornos:
@@ -122,7 +123,7 @@ def findUseful(_src, _img, _factor):
 		cy = int(m['m01']/m['m00'])
 
 		if(compareCenters(cx, cy, foundCenters) == 1):		
-			if(len(approx) == 4 and (cv2.contourArea(cnt) > 50) and (cv2.contourArea(cnt) < 1000)):
+			if(len(approx) == 4 and (cv2.contourArea(cnt) > 200) and (cv2.contourArea(cnt) < 2400)):
 				k = np.array([[[cx,cy]]])
 				for padd in range(5-(len(approx))):
 					approx = np.append(approx, [[[0,0]]], axis=0)
@@ -131,8 +132,15 @@ def findUseful(_src, _img, _factor):
 				foundCenters = np.append(foundCenters, [[cy,cx]], axis=0)
 				foundColors = np.append(foundColors, [_src[cy][cx]], axis=0)
 				cv2.drawContours(_src, k, -1, (255,0,255), 3)
+			elif(len(approx) == 4):
+				cv2.drawContours(errorim, cnt, -1, (0,255,255), 3)
+			else:
+				cv2.drawContours(errorim, cnt, -1, (255,255,0), 3)
+		else:
+			cv2.drawContours(errorim, cnt, -1, (255,0,255), 3)
 
 	cv2.imwrite('./imgs/8centers.png', _src)
+	cv2.imwrite('./imgs/0errors.png', errorim)
 	print(foundCenters)
 	print(foundColors)
 	return foundShapes, foundColors, foundCenters
