@@ -44,13 +44,13 @@ cube = 0
 
 
 ################# TESTEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ##########################33
-matrix = [
-    ['R', 0, 0],
-    ['W', 0, 2],
-    ['G', 0, 1]   
-#    ['G', 7, 2],
-#    ['B', 4, 3]
-]
+# matrix = [
+#     ['R', 0, 0],
+#     ['W', 0, 2],
+#     ['G', 0, 1]   
+# #    ['G', 7, 2],
+# #    ['B', 4, 3]
+# ]
 ################## TESTEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE #######################
 
 def PrintSim(mensagem):
@@ -228,6 +228,7 @@ def entregar_cubo_colorido(cube):
     #empurrar_cubo()
     subir_elevador(SEGUNDO_ANDAR)
     fechar_garra_total()
+    MoveDirectionPosition(tras, 0.05)
 
 def entregar_cubo_terceiro_andar(cube):
     subir_elevador(TERCEIRO_ANDAR)
@@ -267,7 +268,7 @@ def alinhar_cubo_na_esquerda_e_pegar():
     while True :
         a = getDistanceIR(irRight)
         b = getDistanceIR(irLeft)
-        print(a,b)
+        #print(a,b)
         MoveForward()
         if(b<0.03 or a < 0.03):
             break
@@ -308,7 +309,7 @@ def alinhar_cubo_na_direita_e_pegar():
     while True :
         a = getDistanceIR(irRight)
         b = getDistanceIR(irLeft)
-        print(a,b)
+        #print(a,b)
         
         if(b<0.03 or a < 0.03):
             break
@@ -815,7 +816,8 @@ def getBlocksInformation(currentPosition, myDirection):
     currentPosition += 1
     print(matrix0)
     print(matrix1)
-    matrix = np.concatenate(matrix0, matrix1)
+    matrix = np.concatenate((matrix0, matrix1), axis=0)
+    print(matrix)
     order = gb.get_path(gb.createGraphBlocks(matrix))
     
 
@@ -825,57 +827,59 @@ def course(block, matrix):
     delivery_locals = {'R': [74], 'Y': [73, 75], 'B': [72, 76], 'G': [71, 77], 'W': [14], 'K': [14]}
     stock_locals = {0: 32, 1: 33, 2: 42, 3:43, 4: 35, 5: 36, 6: 45, 7: 46}
     hiddenBlock = False
-    blockPosition = matrix[block][2]
+    blockPosition = int(matrix[block][2])
+    stockLocal = stock_locals[int(matrix[block][1])]
+    squarePosition = int(matrix[block][2])
 
     #definindo quadrante para buscar bloco
-    if (stock_locals[matrix[block][1]] == 32 or stock_locals[matrix[block][1]] == 35):
-        if (matrix[block][2] == 0):
-            blockLocalPickup = stock_locals[matrix[block][1]]
-        if (matrix[block][2] == 1):
-            blockLocalPickup = stock_locals[matrix[block][1]] - 10
-        if (matrix[block][2] == 2):
-            blockLocalPickup = stock_locals[matrix[block][1]] - 1
-        if (matrix[block][2] == 3): #caso escondido
-            blockLocalPickup = stock_locals[matrix[block][1]]
+    if (stockLocal == 32 or stockLocal == 35):
+        if (squarePosition == 0):
+            blockLocalPickup = stockLocal
+        if (squarePosition == 1):
+            blockLocalPickup = stockLocal - 10
+        if (squarePosition == 2):
+            blockLocalPickup = stockLocal - 1
+        if (squarePosition == 3): #caso escondido
+            blockLocalPickup = stockLocal
             hiddenBlock = True
 
-    if (stock_locals[matrix[block][1]] == 33 or stock_locals[matrix[block][1]] == 36):
-        if (matrix[block][2] == 0):
-            blockLocalPickup = stock_locals[matrix[block][1]] -10
-        if (matrix[block][2] == 1):
-            blockLocalPickup = stock_locals[matrix[block][1]]
-        if (matrix[block][2] == 2): #caso escondido
-            blockLocalPickup = stock_locals[matrix[block][1]]
+    if (stockLocal == 33 or stockLocal == 36):
+        if (squarePosition == 0):
+            blockLocalPickup = stockLocal -10
+        if (squarePosition == 1):
+            blockLocalPickup = stockLocal
+        if (squarePosition == 2): #caso escondido
+            blockLocalPickup = stockLocal
             hiddenBlock = True 
-        if (matrix[block][2] == 3): 
-            blockLocalPickup = stock_locals[matrix[block][1]] + 1
+        if (squarePosition == 3): 
+            blockLocalPickup = stockLocal + 1
     
-    if (stock_locals[matrix[block][1]] == 42 or stock_locals[matrix[block][1]] == 45):
-        if (matrix[block][2] == 0):
-            blockLocalPickup = stock_locals[matrix[block][1]] - 1
-        if (matrix[block][2] == 1): #caso escondido
-            blockLocalPickup = stock_locals[matrix[block][1]]
+    if (stockLocal == 42 or stockLocal == 45):
+        if (squarePosition == 0):
+            blockLocalPickup = stockLocal - 1
+        if (squarePosition == 1): #caso escondido
+            blockLocalPickup = stockLocal
             hiddenBlock = True
-        if (matrix[block][2] == 2):
-            blockLocalPickup = stock_locals[matrix[block][1]]
-        if (matrix[block][2] == 3):
-            blockLocalPickup = stock_locals[matrix[block][1]] + 10
+        if (squarePosition == 2):
+            blockLocalPickup = stockLocal
+        if (squarePosition == 3):
+            blockLocalPickup = stockLocal + 10
         
-    if (stock_locals[matrix[block][1]] == 43 or stock_locals[matrix[block][1]] == 44):
-        if (matrix[block][2] == 0): #caso escondido
-            blockLocalPickup = stock_locals[matrix[block][1]]
+    if (stockLocal == 43 or stockLocal == 46):
+        if (squarePosition == 0): #caso escondido
+            blockLocalPickup = stockLocal
             hiddenBlock = True
-        if (matrix[block][2] == 1): 
-            blockLocalPickup = stock_locals[matrix[block][1]] + 1
-        if (matrix[block][2] == 2):
-            blockLocalPickup = stock_locals[matrix[block][1]] + 10
-        if (matrix[block][2] == 3):
-            blockLocalPickup = stock_locals[matrix[block][1]]
+        if (squarePosition == 1): 
+            blockLocalPickup = stockLocal + 1
+        if (squarePosition == 2):
+            blockLocalPickup = stockLocal + 10
+        if (squarePosition == 3):
+            blockLocalPickup = stockLocal
     
     #definindo quadrante para deixar bloco
     if(matrix[block][0] == 'W' or matrix[block][0] == 'K'):
         blockLocalDelivery = delivery_locals[matrix[block][0]][0]
-    elif(matrix[block][1] < 4): #Esta do lado esquerdo
+    elif(int(matrix[block][1]) < 4): #Esta do lado esquerdo
         blockLocalDelivery = delivery_locals[matrix[block][0]][0]
     else: #Esta do lado direito
         blockLocalDelivery = delivery_locals[matrix[block][0]][1]
@@ -887,6 +891,7 @@ def course(block, matrix):
 
 
 def grabBlock(currentPosition, blockPosition, myDirection):
+    print('grabBLock', currentPosition, blockPosition, myDirection)
     if(currentPosition == 22 or currentPosition== 23 or currentPosition == 25 or currentPosition == 26):
         if(blockPosition == 0):
             goToSquareSide(myDirection, WEST, esquerda)
@@ -907,11 +912,11 @@ def grabBlock(currentPosition, blockPosition, myDirection):
             cube = alinhar_cubo_na_direita_e_pegar()
     if(currentPosition == 52 or currentPosition== 53 or currentPosition == 55 or currentPosition == 56):
         if(blockPosition == 2):
-            goToSquareSide(myDirection, EAST, direita)
+            goToSquareSide(myDirection, WEST, direita)
             myDirection = NORTH
             cube = alinhar_cubo_na_esquerda_e_pegar()
         if(blockPosition == 3):
-            goToSquareSide(myDirection, WEST, esquerda)
+            goToSquareSide(myDirection, EAS, esquerda)
             myDirection = NORTH
             cube = alinhar_cubo_na_direita_e_pegar()  
     if(currentPosition == 34 or currentPosition== 44 or currentPosition == 37 or currentPosition == 47):
@@ -942,6 +947,7 @@ def winOPEN():
     #FIM DE TESTE
     for i in range(1, len(order)):
         blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition = course(order[i] - 2, matrix)
+        print(blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition)
         if (not hiddenBlock):
             currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
             myDirection, cube = grabBlock(currentPosition, blockPosition, myDirection)

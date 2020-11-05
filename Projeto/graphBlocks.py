@@ -21,7 +21,7 @@ import copy
 delivery_locals = {'R': [74], 'Y': [73, 75], 'B': [72, 76], 'G': [71, 77], 'W': [14], 'K': [14]}
 stock_locals = {0: 32, 1: 33, 2: 42, 3:43, 4: 35, 5: 36, 6: 45, 7: 46}
 blockPoints = {'W': 1000,'K':500, 'R': 100, 'Y': 100, 'B': 100, 'G': 100}
-initialPosition = 11
+initialPosition = 26
 
 
 #print(n)
@@ -57,15 +57,15 @@ def createGraphBlocks(matrix):
             aux.append(0)
         graphBlocks.append(aux)
     for i in range(len(matrix)):
-        path, ignore = BlockDistances(initialPosition, stock_locals[matrix[i][1]])
+        path, ignore = BlockDistances(initialPosition, stock_locals[int(matrix[i][1])])
         graphBlocks[0][i+1] = float(path)/blockPoints[matrix[i][0]]
-        path, ignore = BlockDistances(stock_locals[matrix[i][1]], delivery_locals[matrix[i][0]])
+        path, ignore = BlockDistances(stock_locals[int(matrix[i][1])], delivery_locals[matrix[i][0]])
         graphBlocks[i+1][0] = float(path)/blockPoints[matrix[i][0]]
     for i in range(len(matrix)):
-        leaveBlock, localLeft = BlockDistances(stock_locals[matrix[i][1]], delivery_locals[matrix[i][0]])
+        leaveBlock, localLeft = BlockDistances(stock_locals[int(matrix[i][1])], delivery_locals[matrix[i][0]])
         for k in range(len(matrix)):
             if (i != k): 
-                nextBlock, ignore = BlockDistances(delivery_locals[matrix[i][0]][localLeft], stock_locals[matrix[k][1]])
+                nextBlock, ignore = BlockDistances(delivery_locals[matrix[i][0]][localLeft], stock_locals[int(matrix[k][1])])
                 totalpath = leaveBlock + nextBlock
 
                 graphBlocks[i+1][k+1] = float(totalpath)/blockPoints[matrix[i][0]]
