@@ -211,6 +211,29 @@ def pegar_cubo():
     fechar_garra()
     subir_elevador(SEGUNDO_ANDAR)
 
+def indenticar_valor(blockColor):
+    if (blockColor == 'W'):
+        text, op2 = vis.getNumber(clientID)
+        print(text,op2)
+        if(int(text) == op2[0]):
+            return int(text)
+        elif(op2[1] < 0.1):
+            text_, op2_ = vis.getNumber(clientID)
+            if(int(text_) == op2_[0]):
+                return int(text_)
+            elif(op2_[1] < 0.1):
+                return op2_[0]
+        return text
+    if(blockColor == 'K'):
+        num1 = vis.getcode(clientID)
+        num2 = vis.getCode(clientID)
+        if(num1 == num2):
+            return num1
+        else:
+            return indenticar_valor(blockColor)
+
+
+
 def chegar_perto_prateleira():
     a = getDistanceIR(irLeft)
     b = getDistanceIR(irRight)
@@ -317,6 +340,7 @@ def alinhar_cubo_na_direita_e_pegar():
     Stop()
     cube = getCubeHandle(irRight)
     abrir_garra()
+
     dirt=0
     # while True :
     #     a = getDistanceIR(irRight)
@@ -338,6 +362,7 @@ def alinhar_cubo_na_direita_e_pegar():
     # time.sleep(0.08)
     # Stop()
     MoveDirectionPosition(frente, a)
+
     fechar_garra()
     grab(cube)
     print('vou subir')
@@ -528,7 +553,7 @@ def TurnInSquare(angle): #gira no centro do quadrado e vai para ponta
     print(angle)
     
     Align()
-    MoveDirectionPosition(tras, 0.1)
+    MoveDirectionPosition(tras, 0.075)
     if(angle > 0):
         TurnDirectionAng(esquerda, abs(angle))
     if(angle < 0):
@@ -953,6 +978,7 @@ def winOPEN():
             myDirection, cube = grabBlock(currentPosition, blockPosition, myDirection)
 
             if(blockColor == 'K' or blockColor == 'W'):
+                
                 #identifica número
                 blockNumber = 7 ##### MODIFICAR QUANDO IDENTIFICAR
                 currentPosition, myDirection = goToShelfDeliver(blockNumber, currentPosition, myDirection, cube)
@@ -961,6 +987,18 @@ def winOPEN():
                 entregar_cubo_colorido(cube)
         else:
             pickLater.append([blockColor, blockLocalPickup, blockLocalDelivery])
+    for i in range(len(pickLater)):
+        currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
+        myDirection, cube = grabBlock(currentPosition, blockPosition, myDirection) #### modificar para casos islolados
+        if(blockColor == 'K' or blockColor == 'W'):
+            #identifica número
+            blockNumber = 7 ##### MODIFICAR QUANDO IDENTIFICAR
+            currentPosition, myDirection = goToShelfDeliver(blockNumber, currentPosition, myDirection, cube)
+        else:
+            currentPosition, myDirection = goFromTo(currentPosition, blockLocalDelivery, myDirection)
+            entregar_cubo_colorido(cube)
+
+
 
 
 
@@ -1017,7 +1055,8 @@ if clientID != -1:
     initialDirection = SOUTH
     #currentPosition, myDirection = goFromTo(initialPosition, 32, initialDirection)
     #time.sleep(5)
-    winOPEN()
+    print(indenticar_valor('W'))
+    #winOPEN()
 
 
     #getBlocksInformation(initialPosition, initialDirection)
