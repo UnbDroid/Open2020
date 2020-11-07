@@ -939,13 +939,13 @@ def grabBlock(currentPosition, blockPosition, myDirection, blockColor):
             myDirection = SOUTH
             blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_direita_e_pegar()
-        if(blockPosition == 1):
+        if(blockPosition == 1 or blockPosition == 3):
             goToSquareSide(myDirection, EAST, direita)
             myDirection = SOUTH
             blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_esquerda_e_pegar()
     if(currentPosition == 31 or currentPosition== 41 or currentPosition == 34 or currentPosition == 44):
-        if(blockPosition == 0):
+        if(blockPosition == 0 or blockPosition == 1):
             goToSquareSide(myDirection, NORTH, direita)
             myDirection = EAST
             blockNumber = indenticar_valor(blockColor)
@@ -961,13 +961,13 @@ def grabBlock(currentPosition, blockPosition, myDirection, blockColor):
             myDirection = NORTH
             blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_esquerda_e_pegar()
-        if(blockPosition == 3):
+        if(blockPosition == 3 or blockPosition == 1):
             goToSquareSide(myDirection, EAST, esquerda)
             myDirection = NORTH
             blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_direita_e_pegar()  
     if(currentPosition == 34 or currentPosition== 44 or currentPosition == 37 or currentPosition == 47):
-        if(blockPosition == 1):
+        if(blockPosition == 1 or blockPosition == 0):
             goToSquareSide(myDirection, NORTH, esquerda)
             myDirection = WEST
             blockNumber = indenticar_valor(blockColor)
@@ -1015,7 +1015,7 @@ def winOPEN():
             pickLater.append([blockColor, blockLocalPickup, blockLocalDelivery])
     for i in range(len(pickLater)):
         currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
-        myDirection, cube = grabBlock(currentPosition, blockPosition, myDirection) #### modificar para casos islolados
+        myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor) #### modificar para casos islolados
         if(blockColor == 'K' or blockColor == 'W'):
             #identifica número
             blockNumber = 7 ##### MODIFICAR QUANDO IDENTIFICAR
