@@ -17,6 +17,7 @@ import numpy as np
 import cv2
 import compareFaces
 import pytesseract as pytes
+HSV_OP2 = [[43,50],[32,34],[25,30],[25,30]]
 
 
 def getImage(_camera):
@@ -36,7 +37,7 @@ def getImage(_camera):
 	cv2.imwrite('./imgs/0src.png', img)
 	return img, nres
 
-def basicFilter(_src, _op):
+def basicFilter(_src, _op, _correction=0):
 	"Processamento basico para isolar o topo dos cubos"
 	#Isolar a cor branca procurada usando HSV:
 	hsv = cv2.cvtColor(_src, cv2.COLOR_BGR2HSV)
@@ -48,14 +49,14 @@ def basicFilter(_src, _op):
 		hsv_upper = np.array([179,255,100])
 		mask2 = cv2.inRange(hsv, hsv_lower, hsv_upper)
 	elif(_op == 1):
-		hsv_lower = np.array([0,0,145])
+		hsv_lower = np.array([0,0,129])
 		hsv_upper = np.array([10,100,160])
 		mask = cv2.inRange(hsv, hsv_lower, hsv_upper)
 	elif(_op == 2):
-		hsv_lower = np.array([0,0,40])
-		hsv_upper = np.array([179,255,60])
+		hsv_lower = np.array([0,0,HSV_OP2[_correction][0]])
+		hsv_upper = np.array([179,255,HSV_OP2[_correction][1]])
 		mask = cv2.inRange(hsv, hsv_lower, hsv_upper)
-		hsv_lower = np.array([0,0,245])
+		hsv_lower = np.array([0,0,249])
 		hsv_upper = np.array([179,255,255])
 		mask2 = cv2.inRange(hsv, hsv_lower, hsv_upper)
 
@@ -216,7 +217,7 @@ def isolateFace(_src, _img, _res, _op):
 	img = _img.copy()
 	img = img[int(_res[0]/2):_res[0], 0:int(_res[1]*0.7)]
 	minV = 127
-	factor = 0.15
+	factor = 0.13
 	if(_op): 
 		minV = 5
 		src = img.copy()
@@ -225,6 +226,11 @@ def isolateFace(_src, _img, _res, _op):
 
 	if(_op):
 		kernel = np.ones((5,5),np.uint8)
+		img = cv2.dilate(img,kernel,iterations = 1)
+		img = cv2.erode(img,kernel,iterations = 3)
+		img = cv2.dilate(img,kernel,iterations = 2)
+	else:
+		kernel = np.ones((7,7),dtype=np.uint8)
 		img = cv2.dilate(img,kernel,iterations = 1)
 		img = cv2.erode(img,kernel,iterations = 1)
 
@@ -236,19 +242,26 @@ def isolateFace(_src, _img, _res, _op):
 	cv2.imwrite('./imgs/5face.png', img)
 	
 	approx = [0]
-	while(len(approx) < 2 and factor > 0):
+	while(len(approx) < 2 and factor < 5):
 		for cnt in cnts:
 			perimeter = cv2.arcLength(cnt, True)
 			if(perimeter > 500):
 				approx = cv2.approxPolyDP(cnt, factor * perimeter, True)
 		factor = factor + 0.2
 
-	print(approx)
+	if(factor > 5):
+		return 0, [0,0]
 
-	height = int(min(approx[0][0][1], approx[1][0][1]))
-	width = int(min(approx[0][0][0], approx[1][0][0]))
-	maxWid = int(max(approx[0][0][0], approx[1][0][0]))
-	maxHei = int(max(approx[0][0][1], approx[1][0][1]))
+
+	height = 3000
+	width = 3000
+	maxWid = 0
+	maxHei = 0
+	for x in range(len(approx)):
+		height = int(min(approx[x][0][1], height))
+		width = int(min(approx[x][0][0], width))
+		maxWid = int(max(approx[x][0][0], maxWid))
+		maxHei = int(max(approx[x][0][1], maxHei))
 	#print(height, " ", width, " " ,maxWid, " ", approx[1][0][0][1])
 
 	img = img[height:maxHei, width:maxWid]
@@ -257,6 +270,7 @@ def isolateFace(_src, _img, _res, _op):
 		img = src[height:maxHei, width:maxWid]
 		thres, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
 
+	#print([maxHei-height,maxWid-width])
 	return img, [maxHei-height,maxWid-width]
 
 def resolveVision(_clientID, _sigValue):
@@ -286,6 +300,100 @@ def resolveVision(_clientID, _sigValue):
 	cv2.imwrite('./imgs/7Final.png', frame)
 	return foundCubes
 
+
+
+
+
+
+def nothing(x):
+	pass
+
+def test(camera):
+
+	image, resol = getImage(camera)
+
+	# Create a window
+	cv2.namedWindow('image')
+	cv2.namedWindow('track')
+
+	boundaries = [
+		([17, 15, 100], [50, 56, 200]),
+		([86, 31, 4], [220, 88, 50]),
+		([25, 146, 190], [62, 174, 250]),
+		([103, 86, 65], [145, 133, 128])
+	]
+
+	# create trackbars for color change
+	cv2.createTrackbar('HMin','track',0,179,nothing) # Hue is from 0-179 for Opencv
+	cv2.createTrackbar('SMin','track',0,255,nothing)
+	cv2.createTrackbar('VMin','track',0,255,nothing)
+	cv2.createTrackbar('HMax','track',0,179,nothing)
+	cv2.createTrackbar('SMax','track',0,255,nothing)
+	cv2.createTrackbar('VMax','track',0,255,nothing)
+
+	# Set default value for MAX HSV trackbars.
+	cv2.setTrackbarPos('HMax', 'track', 179)
+	cv2.setTrackbarPos('SMax', 'track', 255)
+	cv2.setTrackbarPos('VMax', 'track', 255)
+
+	# Initialize to check if HSV min/max value changes
+	hMin = sMin = vMin = hMax = sMax = vMax = 0
+	phMin = psMin = pvMin = phMax = psMax = pvMax = 0
+
+	output = image
+	wait_time = 33
+
+	#for (lower, upper) in boundaries:
+	#	# create NumPy arrays from the boundaries
+	#	lower = np.array(lower, dtype = "uint8")
+	#	upper = np.array(upper, dtype = "uint8")
+	#	# find the colors within the specified boundaries and apply
+	#	# the mask
+	#	mask = cv2.inRange(image, lower, upper)
+	#	output = cv2.bitwise_and(image, image, mask = mask)
+	#	# show the images
+	#	cv2.imshow("images", np.hstack([image, output]))
+	#	cv2.waitKey(0)
+
+	while(1):
+		frame, resol = getImage(camera)
+		# get current positions of all trackbars
+		hMin = cv2.getTrackbarPos('HMin','track')
+		sMin = cv2.getTrackbarPos('SMin','track')
+		vMin = cv2.getTrackbarPos('VMin','track')
+
+		hMax = cv2.getTrackbarPos('HMax','track')
+		sMax = cv2.getTrackbarPos('SMax','track')
+		vMax = cv2.getTrackbarPos('VMax','track')
+
+		# Set minimum and max HSV values to display
+		lower = np.array([hMin, sMin, vMin])
+		upper = np.array([hMax, sMax, vMax])
+
+		# Create HSV Image and threshold into a range.
+		hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+		mask = cv2.inRange(hsv, lower, upper)
+		output = cv2.bitwise_and(image,image, mask= mask)
+
+		# Print if there is a change in HSV value
+		if( (phMin != hMin) | (psMin != sMin) | (pvMin != vMin) | (phMax != hMax) | (psMax != sMax) | (pvMax != vMax) ):
+			print("(hMin = %d , sMin = %d, vMin = %d), (hMax = %d , sMax = %d, vMax = %d)" % (hMin , sMin , vMin, hMax, sMax , vMax))
+			phMin = hMin
+			psMin = sMin
+			pvMin = vMin
+			phMax = hMax
+			psMax = sMax
+			pvMax = vMax
+
+		# Display output image
+		cv2.imshow('image',output)
+
+		# Wait longer to prevent freeze for videos.
+		if cv2.waitKey(wait_time) & 0xFF == ord('q'):
+			break
+
+	cv2.destroyAllWindows()
+
 def getNumber(_clientID):
 	global clientID
 	clientID = _clientID
@@ -295,6 +403,7 @@ def getNumber(_clientID):
 	# Start the Stream
 	erro, res, image = sim.simxGetVisionSensorImage(clientID, camera, 0, sim.simx_opmode_streaming)
 	frame, resol = getImage(camera)
+	test(camera)
 
 	src = frame.copy()
 	img = basicFilter(src, 1)
@@ -311,6 +420,7 @@ def getNumber(_clientID):
 def getCode(_clientID):
 	global clientID
 	clientID = _clientID
+	correction = 0
 
 	# Get the camera handle:
 	erro, camera = sim.simxGetObjectHandle(clientID, 'Vis_Num', sim.simx_opmode_oneshot_wait)
@@ -318,9 +428,16 @@ def getCode(_clientID):
 	erro, res, image = sim.simxGetVisionSensorImage(clientID, camera, 0, sim.simx_opmode_streaming)
 	frame, resol = getImage(camera)
 	src = frame.copy()
+	test(camera)
 		
-	img = basicFilter(src, 2)
+	img = basicFilter(src, 2, correction)
 	isolImg, nres = isolateFace(frame.copy(), img, resol, 1)
+	while((nres[0] > 240 or nres[0] < 80 or nres[1] > 240 or nres[1] < 80 or (abs(nres[0]-nres[1]) > 70)) and correction != 3):
+		correction = correction+1
+		img = basicFilter(src, 2, correction)
+		isolImg, nres = isolateFace(frame.copy(), img, resol, 1)
+		print(nres)
+
 	cv2.imwrite('./imgs/7new.png', isolImg)
 
 	op2 = compareFaces.compareBar(isolImg, nres)
