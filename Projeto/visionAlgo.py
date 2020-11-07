@@ -101,6 +101,7 @@ def compareCenters(_cx, _cy, _centers):
 def findUseful(_src, _img, _factor):
 	"Acha os contornos uteis da imagem"
 	#Pega todas as bordas por Canny:
+	thres, _img = cv2.threshold(_img, 10, 255, cv2.THRESH_BINARY)
 	edges = cv2.Canny(_img, 100, 200)
 	cv2.imwrite('./imgs/5edges.png', edges)
 	foundCenters = np.empty(shape=[0,2])
@@ -124,7 +125,7 @@ def findUseful(_src, _img, _factor):
 		cy = int(m['m01']/m['m00'])
 
 		if(compareCenters(cx, cy, foundCenters) == 1):		
-			if(len(approx) == 4 and (cv2.contourArea(cnt) > 200) and (cv2.contourArea(cnt) < 2400)):
+			if(len(approx) == 4 and (cv2.contourArea(cnt) > 200) and (cv2.contourArea(cnt) < 2600)):
 				k = np.array([[[cx,cy]]])
 				for padd in range(5-(len(approx))):
 					approx = np.append(approx, [[[0,0]]], axis=0)
@@ -134,6 +135,7 @@ def findUseful(_src, _img, _factor):
 				foundColors = np.append(foundColors, [_src[cy][cx]], axis=0)
 				cv2.drawContours(_src, k, -1, (255,0,255), 3)
 			elif(len(approx) == 4):
+				print(cv2.contourArea(cnt))
 				cv2.drawContours(errorim, cnt, -1, (0,255,255), 3)
 			else:
 				cv2.drawContours(errorim, cnt, -1, (255,255,0), 3)
@@ -403,7 +405,7 @@ def getNumber(_clientID):
 	# Start the Stream
 	erro, res, image = sim.simxGetVisionSensorImage(clientID, camera, 0, sim.simx_opmode_streaming)
 	frame, resol = getImage(camera)
-	test(camera)
+	#test(camera)
 
 	src = frame.copy()
 	img = basicFilter(src, 1)
@@ -428,7 +430,7 @@ def getCode(_clientID):
 	erro, res, image = sim.simxGetVisionSensorImage(clientID, camera, 0, sim.simx_opmode_streaming)
 	frame, resol = getImage(camera)
 	src = frame.copy()
-	test(camera)
+	#test(camera)
 		
 	img = basicFilter(src, 2, correction)
 	isolImg, nres = isolateFace(frame.copy(), img, resol, 1)
