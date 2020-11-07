@@ -250,7 +250,7 @@ def indenticar_valor(blockColor):
             return num1
         else:
             return indenticar_valor(blockColor)
-
+    return 0 
 
 
 def chegar_perto_prateleira():
@@ -816,7 +816,7 @@ def goToSquareSide(myDirection, firstDirection, finalTurn):
     #MoveDirectionPosition(tras, 0.01)
     turnTo(myDirection, firstDirection)
     Align()
-    MoveDirectionPosition(tras, 0.03)
+    MoveDirectionPosition(tras, 0.01)
     TurnDirectionAng(finalTurn, 90)
     MoveDirectionPosition(tras, 0.03)
 
@@ -852,9 +852,9 @@ def getBlocksInformation(currentPosition, myDirection):
     matrix1 = vis.resolveVision(clientID,1)
     #time.sleep(3)
 
-    myDirection = turnTo(myDirection ,EAST)
+    myDirection = turnTo(myDirection ,WEST)
     #MoveDirectionPosition(frente, 0.020)
-    currentPosition += 1
+    #currentPosition += 1
     # print(matrix0)
     # print(matrix1)
     matrix = np.concatenate((matrix0, matrix1), axis=0)
@@ -931,46 +931,54 @@ def course(block, matrix):
 
 
 
-def grabBlock(currentPosition, blockPosition, myDirection):
+def grabBlock(currentPosition, blockPosition, myDirection, blockColor):
     print('grabBLock', currentPosition, blockPosition, myDirection)
     if(currentPosition == 22 or currentPosition== 23 or currentPosition == 25 or currentPosition == 26):
         if(blockPosition == 0):
             goToSquareSide(myDirection, WEST, esquerda)
             myDirection = SOUTH
+            blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_direita_e_pegar()
         if(blockPosition == 1):
             goToSquareSide(myDirection, EAST, direita)
             myDirection = SOUTH
+            blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_esquerda_e_pegar()
     if(currentPosition == 31 or currentPosition== 41 or currentPosition == 34 or currentPosition == 44):
         if(blockPosition == 0):
             goToSquareSide(myDirection, NORTH, direita)
             myDirection = EAST
+            blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_esquerda_e_pegar()
         if(blockPosition == 2):
             goToSquareSide(myDirection, SOUTH, esquerda)
             myDirection = EAST
+            blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_direita_e_pegar()
     if(currentPosition == 52 or currentPosition== 53 or currentPosition == 55 or currentPosition == 56):
         if(blockPosition == 2):
             goToSquareSide(myDirection, WEST, direita)
             myDirection = NORTH
+            blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_esquerda_e_pegar()
         if(blockPosition == 3):
             goToSquareSide(myDirection, EAST, esquerda)
             myDirection = NORTH
+            blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_direita_e_pegar()  
     if(currentPosition == 34 or currentPosition== 44 or currentPosition == 37 or currentPosition == 47):
         if(blockPosition == 1):
             goToSquareSide(myDirection, NORTH, esquerda)
             myDirection = WEST
+            blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_direita_e_pegar()
         if(blockPosition == 3):
             goToSquareSide(myDirection, SOUTH, direita)
             myDirection = WEST
+            blockNumber = indenticar_valor(blockColor)
             cube = alinhar_cubo_na_esquerda_e_pegar()
 
-    return myDirection, cube
+    return myDirection, cube, blockNumber
 
     
             
@@ -991,12 +999,12 @@ def winOPEN():
         print(blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition)
         if (not hiddenBlock):
             currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
-            myDirection, cube = grabBlock(currentPosition, blockPosition, myDirection)
+            myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor)
 
             if(blockColor == 'K' or blockColor == 'W'):
                 
                 #identifica número
-                blockNumber = 7 ##### MODIFICAR QUANDO IDENTIFICAR
+                 ##### MODIFICAR QUANDO IDENTIFICAR
                 if(currentPosition > 50):
                     currentPosition, myDirection = goFromTo(currentPosition, 44, myDirection)
                 currentPosition, myDirection = goToShelfDeliver(blockNumber, currentPosition, myDirection, cube)
