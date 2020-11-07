@@ -37,6 +37,101 @@ def getImage(_camera):
 	cv2.imwrite('./imgs/0src.png', img)
 	return img, nres
 
+
+
+def nothing(x):
+	pass
+
+def test(camera):
+
+	image, resol = getImage(camera)
+
+	# Create a window
+	cv2.namedWindow('image')
+	cv2.namedWindow('track')
+
+	boundaries = [
+		([17, 15, 100], [50, 56, 200]),
+		([86, 31, 4], [220, 88, 50]),
+		([25, 146, 190], [62, 174, 250]),
+		([103, 86, 65], [145, 133, 128])
+	]
+
+	# create trackbars for color change
+	cv2.createTrackbar('HMin','track',0,179,nothing) # Hue is from 0-179 for Opencv
+	cv2.createTrackbar('SMin','track',0,255,nothing)
+	cv2.createTrackbar('VMin','track',0,255,nothing)
+	cv2.createTrackbar('HMax','track',0,179,nothing)
+	cv2.createTrackbar('SMax','track',0,255,nothing)
+	cv2.createTrackbar('VMax','track',0,255,nothing)
+
+	# Set default value for MAX HSV trackbars.
+	cv2.setTrackbarPos('HMax', 'track', 179)
+	cv2.setTrackbarPos('SMax', 'track', 255)
+	cv2.setTrackbarPos('VMax', 'track', 255)
+
+	# Initialize to check if HSV min/max value changes
+	hMin = sMin = vMin = hMax = sMax = vMax = 0
+	phMin = psMin = pvMin = phMax = psMax = pvMax = 0
+
+	output = image
+	wait_time = 33
+
+	#for (lower, upper) in boundaries:
+	#	# create NumPy arrays from the boundaries
+	#	lower = np.array(lower, dtype = "uint8")
+	#	upper = np.array(upper, dtype = "uint8")
+	#	# find the colors within the specified boundaries and apply
+	#	# the mask
+	#	mask = cv2.inRange(image, lower, upper)
+	#	output = cv2.bitwise_and(image, image, mask = mask)
+	#	# show the images
+	#	cv2.imshow("images", np.hstack([image, output]))
+	#	cv2.waitKey(0)
+
+	while(1):
+		frame, resol = getImage(camera)
+		# get current positions of all trackbars
+		hMin = cv2.getTrackbarPos('HMin','track')
+		sMin = cv2.getTrackbarPos('SMin','track')
+		vMin = cv2.getTrackbarPos('VMin','track')
+
+		hMax = cv2.getTrackbarPos('HMax','track')
+		sMax = cv2.getTrackbarPos('SMax','track')
+		vMax = cv2.getTrackbarPos('VMax','track')
+
+		# Set minimum and max HSV values to display
+		lower = np.array([hMin, sMin, vMin])
+		upper = np.array([hMax, sMax, vMax])
+
+		# Create HSV Image and threshold into a range.
+		hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+		mask = cv2.inRange(hsv, lower, upper)
+		output = cv2.bitwise_and(image,image, mask= mask)
+
+		# Print if there is a change in HSV value
+		if( (phMin != hMin) | (psMin != sMin) | (pvMin != vMin) | (phMax != hMax) | (psMax != sMax) | (pvMax != vMax) ):
+			print("(hMin = %d , sMin = %d, vMin = %d), (hMax = %d , sMax = %d, vMax = %d)" % (hMin , sMin , vMin, hMax, sMax , vMax))
+			phMin = hMin
+			psMin = sMin
+			pvMin = vMin
+			phMax = hMax
+			psMax = sMax
+			pvMax = vMax
+
+		# Display output image
+		cv2.imshow('image',output)
+
+		# Wait longer to prevent freeze for videos.
+		if cv2.waitKey(wait_time) & 0xFF == ord('q'):
+			break
+
+	cv2.destroyAllWindows()
+
+
+
+
+
 def basicFilter(_src, _op, _correction=0):
 	"Processamento basico para isolar o topo dos cubos"
 	#Isolar a cor branca procurada usando HSV:
@@ -247,8 +342,10 @@ def isolateFace(_src, _img, _res, _op):
 	while(len(approx) < 2 and factor < 5):
 		for cnt in cnts:
 			perimeter = cv2.arcLength(cnt, True)
-			if(perimeter > 500):
+			if(perimeter > 400 and perimeter < 1300):
 				approx = cv2.approxPolyDP(cnt, factor * perimeter, True)
+			else:
+				print(perimeter)
 		factor = factor + 0.2
 
 	if(factor > 5):
@@ -302,100 +399,6 @@ def resolveVision(_clientID, _sigValue):
 	cv2.imwrite('./imgs/7Final.png', frame)
 	return foundCubes
 
-
-
-
-
-
-def nothing(x):
-	pass
-
-def test(camera):
-
-	image, resol = getImage(camera)
-
-	# Create a window
-	cv2.namedWindow('image')
-	cv2.namedWindow('track')
-
-	boundaries = [
-		([17, 15, 100], [50, 56, 200]),
-		([86, 31, 4], [220, 88, 50]),
-		([25, 146, 190], [62, 174, 250]),
-		([103, 86, 65], [145, 133, 128])
-	]
-
-	# create trackbars for color change
-	cv2.createTrackbar('HMin','track',0,179,nothing) # Hue is from 0-179 for Opencv
-	cv2.createTrackbar('SMin','track',0,255,nothing)
-	cv2.createTrackbar('VMin','track',0,255,nothing)
-	cv2.createTrackbar('HMax','track',0,179,nothing)
-	cv2.createTrackbar('SMax','track',0,255,nothing)
-	cv2.createTrackbar('VMax','track',0,255,nothing)
-
-	# Set default value for MAX HSV trackbars.
-	cv2.setTrackbarPos('HMax', 'track', 179)
-	cv2.setTrackbarPos('SMax', 'track', 255)
-	cv2.setTrackbarPos('VMax', 'track', 255)
-
-	# Initialize to check if HSV min/max value changes
-	hMin = sMin = vMin = hMax = sMax = vMax = 0
-	phMin = psMin = pvMin = phMax = psMax = pvMax = 0
-
-	output = image
-	wait_time = 33
-
-	#for (lower, upper) in boundaries:
-	#	# create NumPy arrays from the boundaries
-	#	lower = np.array(lower, dtype = "uint8")
-	#	upper = np.array(upper, dtype = "uint8")
-	#	# find the colors within the specified boundaries and apply
-	#	# the mask
-	#	mask = cv2.inRange(image, lower, upper)
-	#	output = cv2.bitwise_and(image, image, mask = mask)
-	#	# show the images
-	#	cv2.imshow("images", np.hstack([image, output]))
-	#	cv2.waitKey(0)
-
-	while(1):
-		frame, resol = getImage(camera)
-		# get current positions of all trackbars
-		hMin = cv2.getTrackbarPos('HMin','track')
-		sMin = cv2.getTrackbarPos('SMin','track')
-		vMin = cv2.getTrackbarPos('VMin','track')
-
-		hMax = cv2.getTrackbarPos('HMax','track')
-		sMax = cv2.getTrackbarPos('SMax','track')
-		vMax = cv2.getTrackbarPos('VMax','track')
-
-		# Set minimum and max HSV values to display
-		lower = np.array([hMin, sMin, vMin])
-		upper = np.array([hMax, sMax, vMax])
-
-		# Create HSV Image and threshold into a range.
-		hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-		mask = cv2.inRange(hsv, lower, upper)
-		output = cv2.bitwise_and(image,image, mask= mask)
-
-		# Print if there is a change in HSV value
-		if( (phMin != hMin) | (psMin != sMin) | (pvMin != vMin) | (phMax != hMax) | (psMax != sMax) | (pvMax != vMax) ):
-			print("(hMin = %d , sMin = %d, vMin = %d), (hMax = %d , sMax = %d, vMax = %d)" % (hMin , sMin , vMin, hMax, sMax , vMax))
-			phMin = hMin
-			psMin = sMin
-			pvMin = vMin
-			phMax = hMax
-			psMax = sMax
-			pvMax = vMax
-
-		# Display output image
-		cv2.imshow('image',output)
-
-		# Wait longer to prevent freeze for videos.
-		if cv2.waitKey(wait_time) & 0xFF == ord('q'):
-			break
-
-	cv2.destroyAllWindows()
-
 def getNumber(_clientID):
 	global clientID
 	clientID = _clientID
@@ -430,7 +433,7 @@ def getCode(_clientID):
 	erro, res, image = sim.simxGetVisionSensorImage(clientID, camera, 0, sim.simx_opmode_streaming)
 	frame, resol = getImage(camera)
 	src = frame.copy()
-	#test(camera)
+	test(camera)
 		
 	img = basicFilter(src, 2, correction)
 	isolImg, nres = isolateFace(frame.copy(), img, resol, 1)
