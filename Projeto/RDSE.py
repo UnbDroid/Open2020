@@ -1017,8 +1017,8 @@ def winOPEN():
         currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
         myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor) #### modificar para casos islolados
         if(blockColor == 'K' or blockColor == 'W'):
-            #identifica número
-            blockNumber = 7 ##### MODIFICAR QUANDO IDENTIFICAR
+            if(currentPosition > 50):
+                currentPosition, myDirection = goFromTo(currentPosition, 44, myDirection)
             currentPosition, myDirection = goToShelfDeliver(blockNumber, currentPosition, myDirection, cube)
         else:
             currentPosition, myDirection = goFromTo(currentPosition, blockLocalDelivery, myDirection)
