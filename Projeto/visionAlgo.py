@@ -433,7 +433,7 @@ def getCode(_clientID):
 	erro, res, image = sim.simxGetVisionSensorImage(clientID, camera, 0, sim.simx_opmode_streaming)
 	frame, resol = getImage(camera)
 	src = frame.copy()
-	test(camera)
+	#test(camera)
 		
 	img = basicFilter(src, 2, correction)
 	isolImg, nres = isolateFace(frame.copy(), img, resol, 1)
