@@ -89,14 +89,14 @@ def Align():   #em desenvolvimento
                     [erro, atual_pos_cor_esq] = sim.simxGetObjectPosition(clientID, color_sensor_Left, -1, sim.simx_opmode_buffer)
                     ye_atual_dif_longi = np.abs(seg_pos_cor_esq[1] - atual_pos_cor_esq[1])
 
-                    if(int(ye_atual_dif_longi*100000) >= int(y_s_dif_trans*100000)):
+                    if(int(ye_atual_dif_longi*1000000) >= int(y_s_dif_trans*1000000)):
                         print("Alinhando")
                         print("Alinhei")
                         print(int(ye_atual_dif_longi*100000))
                         print(int(y_s_dif_trans*100000))
                         break
 
-                    gira_livre_uma_roda(esq, 1, 1)
+                    gira_livre_uma_roda(esq, 1, 0.1)
 
 
 
@@ -111,14 +111,14 @@ def Align():   #em desenvolvimento
                     [erro, atual_pos_cor_dir] = sim.simxGetObjectPosition(clientID, color_sensor_Right, -1, sim.simx_opmode_buffer)
                     yd_atual_dif_longi = np.abs(seg_pos_cor_dir[1] - atual_pos_cor_dir[1])
 
-                    if(int(yd_atual_dif_longi*100000) >= int(y_s_dif_trans*100000)):
+                    if(int(yd_atual_dif_longi*1000000) >= int(y_s_dif_trans*1000000)):
                         print("Alinhando")
                         print("Alinhei")
-                        print(int(yd_atual_dif_longi*100000))
-                        print(int(y_s_dif_trans*100000))
+                        print(int(yd_atual_dif_longi*1000000))
+                        print(int(y_s_dif_trans*1000000))
                         break
 
-                    gira_livre_uma_roda(dir, -1, 1)
+                    gira_livre_uma_roda(dir, -1, 0.1)
 
 
     elif(x_s_dif_trans < y_s_dif_trans):
@@ -135,14 +135,14 @@ def Align():   #em desenvolvimento
                     [erro, atual_pos_cor_esq] = sim.simxGetObjectPosition(clientID, color_sensor_Left, -1, sim.simx_opmode_buffer)
                     xe_atual_dif_longi = np.abs(seg_pos_cor_esq[0] - atual_pos_cor_esq[0])
 
-                    if (int(xe_atual_dif_longi*1000) >= int(x_s_dif_trans*1000)):
+                    if (int(xe_atual_dif_longi*1000000) >= int(x_s_dif_trans*1000000)):
                         print("Alinhando")
                         print("Alinhei")
-                        print(int(xe_atual_dif_longi*1000))
-                        print(int(x_s_dif_trans*1000))
+                        print(int(xe_atual_dif_longi*1000000))
+                        print(int(x_s_dif_trans*1000000))
                         break
 
-                    gira_livre_uma_roda(esq, 1, 1)
+                    gira_livre_uma_roda(esq, 1, 0.1)
 
         elif (direita_preto == True):
 
@@ -155,14 +155,14 @@ def Align():   #em desenvolvimento
                     [erro, atual_pos_cor_dir] = sim.simxGetObjectPosition(clientID, color_sensor_Right, -1, sim.simx_opmode_buffer)
                     xd_atual_dif_longi = np.abs(seg_pos_cor_dir[0] - atual_pos_cor_dir[0])
 
-                    if (int(xd_atual_dif_longi*1000) >= int(x_s_dif_trans*1000)):
+                    if (int(xd_atual_dif_longi*1000000) >= int(x_s_dif_trans*1000000)):
                         print("Alinhando")
                         print("Alinhei")
                         print(xd_atual_dif_longi)
                         print(x_s_dif_trans)
                         break
 
-                    gira_livre_uma_roda(dir, -1, 1)
+                    gira_livre_uma_roda(dir, -1, 0.1)
 
 
 
