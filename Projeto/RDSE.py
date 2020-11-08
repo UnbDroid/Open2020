@@ -176,8 +176,8 @@ def descer_elevador():
 
 def abrir_garra():
     sim.simxPauseCommunication(clientID, True)
-    sim.simxSetJointTargetPosition(clientID,paDireita,0.06,sim.simx_opmode_oneshot)
-    sim.simxSetJointTargetPosition(clientID,paEsquerda,0.06,sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetPosition(clientID,paDireita,0.04,sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetPosition(clientID,paEsquerda,0.04,sim.simx_opmode_oneshot)
     sim.simxPauseCommunication(clientID, False)
     time.sleep(1.5)
 
@@ -190,8 +190,8 @@ def fechar_garra():
 
 def fechar_garra_total():
     sim.simxPauseCommunication(clientID, True)
-    sim.simxSetJointTargetPosition(clientID,paDireita,0.01,sim.simx_opmode_oneshot) 
-    sim.simxSetJointTargetPosition(clientID,paEsquerda,0.01,sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetPosition(clientID,paDireita, 0,sim.simx_opmode_oneshot) 
+    sim.simxSetJointTargetPosition(clientID,paEsquerda, 0,sim.simx_opmode_oneshot)
     sim.simxPauseCommunication(clientID, False)
     time.sleep(1)
 
@@ -202,8 +202,8 @@ def fechar_garra_cubo(cube):
     erro = 1
     while erro != 0:
         erro, cubePosition = sim.simxGetObjectPosition(clientID, cube, robo, sim.simx_opmode_streaming)
-    print(robotPosition)
-    print(cubePosition)
+    #print(robotPosition)
+    #print(cubePosition)
     cubePosition[0] = 0
     erro = 1
     while erro != 0:
@@ -230,7 +230,7 @@ def pegar_cubo():
     fechar_garra()
     subir_elevador(SEGUNDO_ANDAR)
 
-def indenticar_valor(blockColor):
+def identificar_valor(blockColor):
     if (blockColor == 'W'):
         text, op2 = vis.getNumber(clientID)
         print(text,op2)
@@ -241,27 +241,28 @@ def indenticar_valor(blockColor):
             if(int(text_) == op2_[0]):
                 return int(text_)
             elif(op2_[1] < 0.1):
-                return op2_[0]
-        return text
+                return int(op2_[0])
+        return int(text)
     if(blockColor == 'K'):
         num1 = vis.getCode(clientID)
         num2 = vis.getCode(clientID)
         if(num1 == num2):
             return num1
         else:
-            return indenticar_valor(blockColor)
+            return identificar_valor(blockColor)
     return 0 
 
 
 def chegar_perto_prateleira():
     a = getDistanceIR(irLeft)
     b = getDistanceIR(irRight)
-    print('chegando')
+    #print('chegando')
     while(a > 0.07 or b > 0.07):
         #print(getDistanceIR(irLeft), getDistanceIR(irRight))
         MoveForward(3)
         a = getDistanceIR(irLeft)
         b = getDistanceIR(irRight)
+    Stop()
 
 def entregar_cubo_colorido(cube):
     descer_elevador()
@@ -283,7 +284,7 @@ def entregar_cubo_terceiro_andar(cube):
     fechar_garra_total()
 
 def entregar_cubo_segundo_andar(cube):
-    print('vou entregar')
+    #print('vou entregar')
     subir_elevador(SEGUNDO_ANDAR)
     MoveDirectionPosition(frente, 0.1)
     chegar_perto_prateleira()
@@ -304,7 +305,7 @@ def entregar_cubo_primeiro_andar(cube):
     fechar_garra_total()
 
 def alinhar_cubo_na_esquerda_e_pegar():
-    #MoveDirectionPosition(tras, 0.015)
+    andar_em_metros(tras, 2, 0.02)
     fechar_garra_total()
     descer_elevador()
     while True :
@@ -344,7 +345,7 @@ def alinhar_cubo_na_esquerda_e_pegar():
     return cube
 
 def alinhar_cubo_na_direita_e_pegar():
-    #MoveDirectionPosition(tras, 0.015)
+    andar_em_metros(tras, 2, 0.02)
     fechar_garra_total()
     descer_elevador()
     while True :
@@ -417,10 +418,9 @@ def MoveDirectionPosition(direcao, dist):   #Andar reto para frente ou para trá
 
 def TurnDirectionAng(direcao, ang):   #Girar para a direita ou para a esquerda pelo angulo que você escolher
     if (ang == 180):
-        girar_90_graus(direcao, 3)
-        girar_90_graus(direcao, 3)
+        Girar_180_graus()
     else:
-        girar_90_graus(direcao, 3)
+        girar_90_graus(direcao, 5)
 
 
 def andar_em_metros(d,v,m):
@@ -517,6 +517,101 @@ def girar_90_graus(d,v):
             sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
             sim.simxPauseCommunication(clientID, False)
             #print(gamma_inicial,gamma)
+
+
+
+def Girar_180_graus(): 
+    
+    # d = 1 , anti horario, esquerda
+    # d =-1 , horario, direita
+    # v = velocidade
+    v = 5
+    d = -1
+    g = 90
+
+    #gira 90:
+
+    erro,b_inicial=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+    gamma_inicial=b_inicial[2]
+    gamma_inicial=gamma_inicial*57.2958
+    if((gamma_inicial<=-170 and gamma_inicial>=-190) or gamma_inicial>170 and gamma_inicial<190):                
+        while(True):
+            erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+            gamma=b[2]
+            gamma=gamma*57.2958           
+            if(abs(abs(gamma)-abs(gamma_inicial))>=0.9*g):
+                break
+            sim.simxPauseCommunication(clientID, True)
+            sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*v, sim.simx_opmode_oneshot)
+            sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
+            sim.simxPauseCommunication(clientID, False)
+    else:
+        while(True):
+            erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+            gamma=b[2]
+            gamma=gamma*57.2958   
+            if(abs(gamma-gamma_inicial)>=0.9*g):
+                break
+            sim.simxPauseCommunication(clientID, True)
+            sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*v, sim.simx_opmode_oneshot)
+            sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
+            sim.simxPauseCommunication(clientID, False)
+
+    #gira 90 dnv:
+
+    erro,b_inicial=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+    gamma_inicial=b_inicial[2]
+    gamma_inicial=gamma_inicial*57.2958
+    if((gamma_inicial<=-170 and gamma_inicial>=-190) or gamma_inicial>170 and gamma_inicial<190):        
+        while(True):
+            erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+            gamma=b[2]
+            gamma=gamma*57.2958
+            if(abs(abs(gamma)-abs(gamma_inicial))>=0.9*g):
+                break
+            sim.simxPauseCommunication(clientID, True)
+            sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*v, sim.simx_opmode_oneshot)
+            sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
+            sim.simxPauseCommunication(clientID, False) 
+        Stop()
+        erro,b_inicial=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+        gamma_inicial=b_inicial[2]
+        gamma_inicial=gamma_inicial*57.2958
+        while(True):
+            erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+            gamma=b[2]
+            gamma=gamma*57.2958
+            if(abs(abs(gamma)-abs(gamma_inicial))>=0.05*g):
+                break
+            sim.simxPauseCommunication(clientID, True)
+            sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*0.4, sim.simx_opmode_oneshot)
+            sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*0.4, sim.simx_opmode_oneshot)
+            sim.simxPauseCommunication(clientID, False)
+    else:
+        while(True):
+            erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+            gamma=b[2]
+            gamma=gamma*57.2958
+            if(abs(gamma-gamma_inicial)>=0.9*g):
+                break
+            sim.simxPauseCommunication(clientID, True)
+            sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*v, sim.simx_opmode_oneshot)
+            sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
+            sim.simxPauseCommunication(clientID, False)
+        Stop()
+        erro,b_inicial=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+        gamma_inicial=b_inicial[2]
+        gamma_inicial=gamma_inicial*57.2958
+        while(True):
+            erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+            gamma=b[2]
+            gamma=gamma*57.2958
+            if(abs(gamma-gamma_inicial)>=0.05*g):
+                break
+            sim.simxPauseCommunication(clientID, True)
+            sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*0.4, sim.simx_opmode_oneshot)
+            sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*0.4, sim.simx_opmode_oneshot)
+            sim.simxPauseCommunication(clientID, False) 
     Stop()
 
 def MoveForwardPosition(dist):
@@ -806,7 +901,7 @@ def goToShelfDeliver(block, currentPosition, myDirection, cube):
     elif(block <= 10):
         entregar_cubo_segundo_andar(cube)
     elif(block <= 15):
-        print('vou entregar')
+        #print('vou entregar')
         entregar_cubo_terceiro_andar(cube)
 
     return currentPosition, myDirection
@@ -816,14 +911,28 @@ def goToSquareSide(myDirection, firstDirection, finalTurn):
     #MoveDirectionPosition(tras, 0.01)
     turnTo(myDirection, firstDirection)
     Align()
-    MoveDirectionPosition(tras, 0.01)
+    MoveDirectionPosition(tras, 0.005)
     TurnDirectionAng(finalTurn, 90)
-    MoveDirectionPosition(tras, 0.03)
+    MoveDirectionPosition(tras, 0.01)
 
     
         
                
 ### FUNÇÕES DESAFIO ###############################################################
+
+def firstCorrection(i, myDirection, currentPosition, blockLocalPickup):
+    print(i, myDirection, currentPosition, blockLocalPickup)
+    if(i == 1):
+        if(blockLocalPickup % 10 >= 6):
+            print('east')
+            myDirection = turnTo(myDirection, EAST)
+            currentPosition += 1
+        else:
+            print('west')
+            myDirection = turnTo(myDirection, WEST)
+        #andar_em_metros(frente, 5, 0.15)
+        Align()
+    return myDirection, currentPosition
 
 def getBlocksInformation(currentPosition, myDirection):
     #Vai para a primeira área
@@ -852,7 +961,7 @@ def getBlocksInformation(currentPosition, myDirection):
     matrix1 = vis.resolveVision(clientID,1)
     #time.sleep(3)
 
-    myDirection = turnTo(myDirection ,WEST)
+    #myDirection = turnTo(myDirection ,WEST)
     #MoveDirectionPosition(frente, 0.020)
     #currentPosition += 1
     # print(matrix0)
@@ -918,7 +1027,7 @@ def course(block, matrix):
             blockLocalPickup = stockLocal
     
     #definindo quadrante para deixar bloco
-    if(matrix[block][0] == 'W' or matrix[block][0] == 'K'):
+    if(matrix[block][0] == 'W' or matrix[block][0] == 'K' or matrix[block][0] == 'R'):
         blockLocalDelivery = delivery_locals[matrix[block][0]][0]
     elif(int(matrix[block][1]) < 4): #Esta do lado esquerdo
         blockLocalDelivery = delivery_locals[matrix[block][0]][0]
@@ -934,48 +1043,48 @@ def course(block, matrix):
 def grabBlock(currentPosition, blockPosition, myDirection, blockColor):
     print('grabBLock', currentPosition, blockPosition, myDirection)
     if(currentPosition == 22 or currentPosition== 23 or currentPosition == 25 or currentPosition == 26):
-        if(blockPosition == 0):
+        if(blockPosition == 0 or blockPosition == 3):
             goToSquareSide(myDirection, WEST, esquerda)
             myDirection = SOUTH
-            blockNumber = indenticar_valor(blockColor)
+            blockNumber = identificar_valor(blockColor)
             cube = alinhar_cubo_na_direita_e_pegar()
-        if(blockPosition == 1 or blockPosition == 3):
+        if(blockPosition == 1 or blockPosition == 2):
             goToSquareSide(myDirection, EAST, direita)
             myDirection = SOUTH
-            blockNumber = indenticar_valor(blockColor)
+            blockNumber = identificar_valor(blockColor)
             cube = alinhar_cubo_na_esquerda_e_pegar()
     if(currentPosition == 31 or currentPosition== 41 or currentPosition == 34 or currentPosition == 44):
         if(blockPosition == 0 or blockPosition == 1):
             goToSquareSide(myDirection, NORTH, direita)
             myDirection = EAST
-            blockNumber = indenticar_valor(blockColor)
+            blockNumber = identificar_valor(blockColor)
             cube = alinhar_cubo_na_esquerda_e_pegar()
-        if(blockPosition == 2):
+        if(blockPosition == 2  or blockPosition == 3):
             goToSquareSide(myDirection, SOUTH, esquerda)
             myDirection = EAST
-            blockNumber = indenticar_valor(blockColor)
+            blockNumber = identificar_valor(blockColor)
             cube = alinhar_cubo_na_direita_e_pegar()
     if(currentPosition == 52 or currentPosition== 53 or currentPosition == 55 or currentPosition == 56):
-        if(blockPosition == 2):
+        if(blockPosition == 2  or blockPosition == 0):
             goToSquareSide(myDirection, WEST, direita)
             myDirection = NORTH
-            blockNumber = indenticar_valor(blockColor)
+            blockNumber = identificar_valor(blockColor)
             cube = alinhar_cubo_na_esquerda_e_pegar()
         if(blockPosition == 3 or blockPosition == 1):
             goToSquareSide(myDirection, EAST, esquerda)
             myDirection = NORTH
-            blockNumber = indenticar_valor(blockColor)
+            blockNumber = identificar_valor(blockColor)
             cube = alinhar_cubo_na_direita_e_pegar()  
     if(currentPosition == 34 or currentPosition== 44 or currentPosition == 37 or currentPosition == 47):
         if(blockPosition == 1 or blockPosition == 0):
             goToSquareSide(myDirection, NORTH, esquerda)
             myDirection = WEST
-            blockNumber = indenticar_valor(blockColor)
+            blockNumber = identificar_valor(blockColor)
             cube = alinhar_cubo_na_direita_e_pegar()
-        if(blockPosition == 3):
+        if(blockPosition == 3 or blockPosition == 2):
             goToSquareSide(myDirection, SOUTH, direita)
             myDirection = WEST
-            blockNumber = indenticar_valor(blockColor)
+            blockNumber = identificar_valor(blockColor)
             cube = alinhar_cubo_na_esquerda_e_pegar()
 
     return myDirection, cube, blockNumber
@@ -998,6 +1107,7 @@ def winOPEN():
         blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition = course(order[i] - 2, matrix)
         print(blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition)
         if (not hiddenBlock):
+            myDirection, currentPosition = firstCorrection(i, myDirection, currentPosition, blockLocalPickup)
             currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
             myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor)
 
@@ -1016,6 +1126,7 @@ def winOPEN():
     for i in range(len(pickLater)):
         currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
         myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor) #### modificar para casos islolados
+        AlignBack()
         if(blockColor == 'K' or blockColor == 'W'):
             if(currentPosition > 50):
                 currentPosition, myDirection = goFromTo(currentPosition, 44, myDirection)
@@ -1085,7 +1196,9 @@ if clientID != -1:
     #     print(getColor(color_sensor_Left), getColor(color_sensor_Right))
     #     time.sleep(1)
     winOPEN()
-
+    #abrir_garra()
+    Align()
+    goToSquareSide(initialDirection, SOUTH, esquerda)
 
     #getBlocksInformation(initialPosition, initialDirection)
     #TurnDirectionAng(direita, 90)
