@@ -18,6 +18,7 @@ import time
 import numpy as np
 import graphBlocks as gb
 import visionAlgo as vis
+import giroAlgo as giro
 
 PRETO = 0
 VERMELHO = 1
@@ -401,10 +402,9 @@ def MoveDirectionPosition(direcao, dist):   #Andar reto para frente ou para trá
 
 def TurnDirectionAng(direcao, ang):   #Girar para a direita ou para a esquerda pelo angulo que você escolher
     if (ang == 180):
-        girar_90_graus(direcao, 3)
-        girar_90_graus(direcao, 3)
+        giro.Girar_180_graus_v2(clientID, robotRightMotor, robotLeftMotor, robo)
     else:
-        girar_90_graus(direcao, 3)
+        giro.Girar_90_graus_v2(clientID, robotRightMotor, robotLeftMotor, robo, direcao)
 
 
 def andar_em_metros(d,v,m):
@@ -441,67 +441,6 @@ def giro_livre(d,v):
     sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
     sim.simxPauseCommunication(clientID, False)
 
-def girar_90_graus(d,v):
-
-    # d = 1 , anti horario, esquerda
-    # d =-1 , horario, direita
-    # v = velocidade
-    
-    g = 90
-    erro,b_inicial=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
-    gamma_inicial=b_inicial[2]
-    gamma_inicial=gamma_inicial*57.2958
-
-    if((gamma_inicial<=-170 and gamma_inicial>=-190) or gamma_inicial>170 and gamma_inicial<190):        
-        while(True):
-            erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
-            gamma=b[2]
-            gamma=gamma*57.2958
-            #print(gamma)
-            if(abs(abs(gamma)-abs(gamma_inicial))>=g):
-                while(True):
-                    erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
-                    gamma=b[2]
-                    gamma=gamma*57.2958
-                    if(abs(abs(gamma)-abs(gamma_inicial))<=g):
-                        break
-                    sim.simxPauseCommunication(clientID, True)
-                    sim.simxSetJointTargetVelocity(clientID,robotRightMotor,(-1)*d*0.2, sim.simx_opmode_oneshot)
-                    sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,d*0.2, sim.simx_opmode_oneshot)
-                    sim.simxPauseCommunication(clientID, False)
-                    #print(gamma_inicial,gamma)
-                break
-            sim.simxPauseCommunication(clientID, True)
-            sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*v, sim.simx_opmode_oneshot)
-            sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
-            sim.simxPauseCommunication(clientID, False)
-            #print(gamma_inicial,gamma)
-
-    else:
-        while(True):
-            erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
-            gamma=b[2]
-            gamma=gamma*57.2958
-            #print(gamma)
-            if(abs(gamma-gamma_inicial)>=g):
-                while(True):
-                    erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
-                    gamma=b[2]
-                    gamma=gamma*57.2958
-                    if(abs(gamma-gamma_inicial)<=g):
-                        break
-                    sim.simxPauseCommunication(clientID, True)
-                    sim.simxSetJointTargetVelocity(clientID,robotRightMotor,(-1)*d*0.2, sim.simx_opmode_oneshot)
-                    sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,d*0.2, sim.simx_opmode_oneshot)
-                    sim.simxPauseCommunication(clientID, False)
-                    #print(gamma_inicial,gamma)
-                break
-            sim.simxPauseCommunication(clientID, True)
-            sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*v, sim.simx_opmode_oneshot)
-            sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
-            sim.simxPauseCommunication(clientID, False)
-            #print(gamma_inicial,gamma)
-    Stop()
 
 def MoveForwardPosition(dist):
     MoveDirectionPosition(frente, dist)
@@ -1055,8 +994,9 @@ if clientID != -1:
     initialDirection = SOUTH
     #currentPosition, myDirection = goFromTo(initialPosition, 32, initialDirection)
     #time.sleep(5)
-    print(indenticar_valor('W'))
-    #winOPEN()
+    #TurnDirectionAng(esquerda, 90)
+    #print(indenticar_valor('W'))
+    winOPEN()
 
 
     #getBlocksInformation(initialPosition, initialDirection)

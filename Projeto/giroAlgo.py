@@ -28,7 +28,7 @@ def Girar_90_graus_v2(clientID, _robotRightMotor, _robotLeftMotor, _robo, d):
     # d =-1 , horario, direita
     # v = velocidade
     
-    v = 8
+    v = 5
     g = 90
     erro,b_inicial=sim.simxGetObjectOrientation(clientID,_robo,-1,sim.simx_opmode_streaming)
     while(erro != 0):

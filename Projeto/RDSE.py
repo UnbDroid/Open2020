@@ -18,6 +18,7 @@ import time
 import numpy as np
 import graphBlocks as gb
 import visionAlgo as vis
+import giroAlgo as giro
 
 PRETO = 0
 VERMELHO = 1
@@ -99,9 +100,9 @@ def getCubeHandle(sensor):
 
 def getColor(sensor):
     min_color_value = 200
-    erro , resolution , Image = sim.simxGetVisionSensorImage(clientID, color_sensor_Left, 0, sim.simx_opmode_buffer)
+    erro , resolution , Image = sim.simxGetVisionSensorImage(clientID, sensor, 0, sim.simx_opmode_buffer)
     while (erro != 0):
-        erro , resolution , Image = sim.simxGetVisionSensorImage(clientID, color_sensor_Left, 0, sim.simx_opmode_buffer)
+        erro , resolution , Image = sim.simxGetVisionSensorImage(clientID, sensor, 0, sim.simx_opmode_buffer)
     img = np.array(Image,dtype=np.uint8)
     #print(resolution, img)
     rgb_color = 0
@@ -305,7 +306,7 @@ def entregar_cubo_primeiro_andar(cube):
     fechar_garra_total()
 
 def alinhar_cubo_na_esquerda_e_pegar():
-    andar_em_metros(tras, 2, 0.02)
+    andar_em_metros(tras, 2, 0.01)
     fechar_garra_total()
     descer_elevador()
     while True :
@@ -316,7 +317,14 @@ def alinhar_cubo_na_esquerda_e_pegar():
         if(b<0.03 or a < 0.03):
             break
     Stop()
-    cube = getCubeHandle(irLeft)
+    a = getDistanceIR(irRight)
+    b = getDistanceIR(irLeft)
+    if(b < a):
+        cube = getCubeHandle(irLeft)
+        dist = b
+    else:
+        cube = getCubeHandle(irRight)
+        dist = a
     abrir_garra()
     esq=0
     # while True :
@@ -336,16 +344,17 @@ def alinhar_cubo_na_esquerda_e_pegar():
     # TurnRight()
     # time.sleep(0.08)
     # Stop()
-    print(0.06 + b)
-    andar_em_metros(frente, 2, b)
+    print(dist)
+    andar_em_metros(frente, 2, dist)
     fechar_garra_cubo(cube)
     grab(cube)
     subir_elevador(SEGUNDO_ANDAR)
-    MoveDirectionPosition(tras, b)
+    AlignSpecial(2)
+    #MoveDirectionPosition(tras, dist)
     return cube
 
 def alinhar_cubo_na_direita_e_pegar():
-    andar_em_metros(tras, 2, 0.02)
+    andar_em_metros(tras, 2, 0.01)
     fechar_garra_total()
     descer_elevador()
     while True :
@@ -357,7 +366,14 @@ def alinhar_cubo_na_direita_e_pegar():
             break
         MoveForward(2)
     Stop()
-    cube = getCubeHandle(irRight)
+    a = getDistanceIR(irRight)
+    b = getDistanceIR(irLeft)
+    if(b < a):
+        cube = getCubeHandle(irLeft)
+        dist = b
+    else:
+        cube = getCubeHandle(irRight)
+        dist = a
     abrir_garra()
 
     dirt=0
@@ -379,15 +395,16 @@ def alinhar_cubo_na_direita_e_pegar():
     # TurnLeft()
     # time.sleep(0.08)
     # Stop()
-    andar_em_metros(frente, 2, a)
+    andar_em_metros(frente, 2, dist)
 
     fechar_garra_cubo(cube)
     grab(cube)
     print('vou subir')
     subir_elevador(SEGUNDO_ANDAR)
     print('subi')
-    time.sleep(2)
-    MoveDirectionPosition(tras, a)
+    AlignSpecial(2)
+    #time.sleep(2)
+    #MoveDirectionPosition(tras, dist)
     return cube
 
  
@@ -417,9 +434,9 @@ def MoveDirectionPosition(direcao, dist):   #Andar reto para frente ou para trá
 
 def TurnDirectionAng(direcao, ang):   #Girar para a direita ou para a esquerda pelo angulo que você escolher
     if (ang == 180):
-        Girar_180_graus()
+        giro.Girar_180_graus_v2(clientID, robotRightMotor, robotLeftMotor, robo)
     else:
-        girar_90_graus(direcao, 5)
+        giro.Girar_90_graus_v2(clientID, robotRightMotor, robotLeftMotor, robo, direcao)
 
 
 def andar_em_metros(d,v,m):
@@ -432,6 +449,10 @@ def andar_em_metros(d,v,m):
     erro,a_inicial=sim.simxGetObjectPosition(clientID,robo,-1,sim.simx_opmode_blocking)
     x_inicial=a_inicial[0]
     y_inicial=a_inicial[1]
+    sim.simxPauseCommunication(clientID, True)
+    sim.simxSetJointTargetVelocity(clientID, robotRightMotor,d*v, sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetVelocity(clientID, robotLeftMotor,d*v, sim.simx_opmode_oneshot)
+    sim.simxPauseCommunication(clientID, False)
     while(True):
         erro,a=sim.simxGetObjectPosition(clientID,robo,-1,sim.simx_opmode_blocking)
         x=a[0]
@@ -439,10 +460,6 @@ def andar_em_metros(d,v,m):
         #print(x,y)
         if(abs(x-x_inicial)>=m or abs(y-y_inicial)>=m): 
             break 
-        sim.simxPauseCommunication(clientID, True)
-        sim.simxSetJointTargetVelocity(clientID, robotRightMotor,d*v, sim.simx_opmode_oneshot)
-        sim.simxSetJointTargetVelocity(clientID, robotLeftMotor,d*v, sim.simx_opmode_oneshot)
-        sim.simxPauseCommunication(clientID, False)
     Stop()
 
 def giro_livre(d,v):
@@ -652,6 +669,18 @@ def Align():
 def AlignBack(v):
     while (getColor(color_sensor_Left) != PRETO or getColor(color_sensor_Right) != PRETO):
         MoveBack(v)
+
+def AlignSpecial(v):
+    leftLine = True
+    rightLine = True
+    while (leftLine or rightLine):
+        print('procurando linha')
+        if(getColor(color_sensor_Left) == PRETO):
+            leftLine = False
+        if(getColor(color_sensor_Right) == PRETO):
+            rightLine = False
+        MoveForward(v)
+    Stop()
 
 def MoveSquareForward():
     andar_em_metros(frente, 8, 0.25)
@@ -1138,6 +1167,7 @@ def winOPEN():
         blockSquare = pickLater[i][3]
         currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
         myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor, blockSquare) #### modificar para casos islolados
+        andar_em_metros(tras, 3, 0.05)
         AlignBack(3)
         if(blockColor == 'K' or blockColor == 'W'):
             if(currentPosition > 50):
@@ -1207,11 +1237,11 @@ if clientID != -1:
     # while True:
     #     print(getColor(color_sensor_Left), getColor(color_sensor_Right))
     #     time.sleep(1)
+    
     winOPEN()
     #abrir_garra()
     #Align()
-    #goToSquareSide(initialDirection, SOUTH, esquerda)
-    # Align()
+
     # for i in range(5):
     #     MoveSquareForward()
     #getBlocksInformation(initialPosition, initialDirection)
