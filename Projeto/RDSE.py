@@ -19,6 +19,7 @@ import numpy as np
 import graphBlocks as gb
 import visionAlgo as vis
 import giroAlgo as giro
+import graphBlocksBetter as gbb
 
 PRETO = 0
 VERMELHO = 1
@@ -673,9 +674,9 @@ def Align():   #em desenvolvimento
 
     Stop()
     [erro, pri_pos_cor_dir] = sim.simxGetObjectPosition(clientID, color_sensor_Right, -1, sim.simx_opmode_buffer)
-    print(erro, pri_pos_cor_dir)
+    #print(erro, pri_pos_cor_dir)
     [erro, pri_pos_cor_esq] = sim.simxGetObjectPosition(clientID, color_sensor_Left, -1, sim.simx_opmode_buffer)
-    print(erro, pri_pos_cor_esq)
+    #print(erro, pri_pos_cor_esq)
 
     if (getColor(color_sensor_Left) == PRETO):
         esquerda_preto = True
@@ -701,9 +702,9 @@ def Align():   #em desenvolvimento
 
     Stop()
     [erro, seg_pos_cor_dir] = sim.simxGetObjectPosition(clientID, color_sensor_Right, -1, sim.simx_opmode_buffer)
-    print(erro, seg_pos_cor_dir)
+    #print(erro, seg_pos_cor_dir)
     [erro, seg_pos_cor_esq] = sim.simxGetObjectPosition(clientID, color_sensor_Left, -1, sim.simx_opmode_buffer)
-    print(erro, seg_pos_cor_esq)
+    #print(erro, seg_pos_cor_esq)
     #A essa altura, o robô já andou, viu a linha com o primeiro sensor, andou mais e viu a linha com o segundo
 
     linha_vertical = False
@@ -874,7 +875,7 @@ def TurnInSquare(angle): #gira no centro do quadrado e vai para ponta
         TurnDirectionAng(esquerda, abs(angle))
     if(angle < 0):
         TurnDirectionAng(direita, abs(angle))
-    MoveDirectionPosition(frente, 0.025)
+    #MoveDirectionPosition(frente, 0.025)
     Align()
 
 
@@ -1135,7 +1136,7 @@ def goToSquareSide(myDirection, firstDirection, finalTurn):
 
 def firstCorrection(i, myDirection, currentPosition, blockLocalPickup):
     print(i, myDirection, currentPosition, blockLocalPickup)
-    if(i == 1):
+    if(i == 0):
         if(blockLocalPickup % 10 >= 6):
             print('east')
             myDirection = turnTo(myDirection, EAST)
@@ -1146,6 +1147,20 @@ def firstCorrection(i, myDirection, currentPosition, blockLocalPickup):
         #andar_em_metros(frente, 5, 0.15)
         Align()
     return myDirection, currentPosition
+
+def solvePath(matrix):
+    matrixW, matrixK, matrixRGB, matrixFinal = gbb.separateMatrix(matrix)
+    firstOrder = []
+    secondOrder = []
+    thirdOrder = []
+    if(len(matrixW) != 0):
+        firstOrder = gbb.get_path(gbb.createGraphBlocks(matrixW))
+    if(len(matrixK) != 0):
+        secondOrder = gbb.get_path(gbb.createGraphBlocks(matrixK)) #melhorar a condicao inicial
+    if(len(matrixRGB) != 0):
+        thirdOrder = gbb.get_path(gbb.createGraphBlocks(matrixRGB))
+    finalOrder = gbb.groupPaths(firstOrder, secondOrder, thirdOrder)
+    return finalOrder, matrixFinal
 
 def getBlocksInformation(currentPosition, myDirection):
     #Vai para a primeira área
@@ -1180,11 +1195,13 @@ def getBlocksInformation(currentPosition, myDirection):
     # print(matrix0)
     # print(matrix1)
     matrix = np.concatenate((matrix0, matrix1), axis=0)
-    print(matrix)
-    order = gb.get_path(gb.createGraphBlocks(matrix))
+    
+    #order = gb.get_path(gb.createGraphBlocks(matrix))  #AQUI FUNCIONA COM O CODIGO SIMPLES!!!!!
+    order, matrixFinal = solvePath(matrix)
+    print(order, matrixFinal)
     
 
-    return currentPosition, myDirection, order, matrix
+    return currentPosition, myDirection, order, matrixFinal
 
 def course(block, matrix):
     delivery_locals = {'R': [74], 'Y': [73, 75], 'B': [72, 76], 'G': [71, 77], 'W': [14], 'K': [14]}
@@ -1310,6 +1327,7 @@ def winOPEN():
     initialPosition = 11
     initialDirection = SOUTH
     currentPosition, myDirection, order, matrix = getBlocksInformation(initialPosition, initialDirection)
+    time.sleep(1000)
     #order = [1, 2, 3]
     pickLater = []
     #APENAS TESTE
@@ -1317,8 +1335,9 @@ def winOPEN():
     #currentPosition = initialPosition
     #myDirection = initialDirection
     #FIM DE TESTE
-    for i in range(1, len(order)):
-        blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[i] - 2, matrix)
+    for i in range(len(order)):
+        #blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[i] - 2, matrix) #AQUI FUNCIONA COM O CODIGO SIMPLES!!!!!
+        blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[i], matrix)
         print(blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition)
         if (not hiddenBlock):
             myDirection, currentPosition = firstCorrection(i, myDirection, currentPosition, blockLocalPickup)
