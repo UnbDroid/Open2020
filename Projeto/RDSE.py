@@ -1339,10 +1339,13 @@ def solvePath(matrix):
     thirdOrder = []
     if(len(matrixW) != 0):
         firstOrder = gbb.get_path(gbb.createGraphBlocks(matrixW))
+        print('first', firstOrder)
     if(len(matrixK) != 0):
         secondOrder = gbb.get_path(gbb.createGraphBlocks(matrixK)) #melhorar a condicao inicial
+        print('second', secondOrder)
     if(len(matrixRGB) != 0):
         thirdOrder = gbb.get_path(gbb.createGraphBlocks(matrixRGB))
+        print( 'third', thirdOrder)
     finalOrder = gbb.groupPaths(firstOrder, secondOrder, thirdOrder)
     return finalOrder, matrixFinal
 
