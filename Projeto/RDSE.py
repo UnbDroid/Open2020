@@ -16,7 +16,7 @@ except:
 import math
 import time
 import numpy as np
-import graphBlocks as gb
+#import graphBlocks as gb
 import visionAlgo as vis
 import giroAlgo as giro
 import graphBlocksBetter as gbb
@@ -1607,7 +1607,7 @@ def winOPEN():
             myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor, blockSquare)
             print(currentPosition, myDirection, cube, blockNumber)
             if(blockNumber == 0):
-                blockZero.append(blockSquare, blockPosition)
+                blockZero.append([blockSquare, blockPosition])
             if((blockColor == 'K' or blockColor == 'W') and blockNumber != 0):
                 #identifica número
                  ##### MODIFICAR QUANDO IDENTIFICAR

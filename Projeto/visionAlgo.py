@@ -343,7 +343,7 @@ def isolateFace(_src, _img, _res, _op):
 	while(len(approx) < 2 and factor < 5):
 		for cnt in cnts:
 			perimeter = cv2.arcLength(cnt, True)
-			if(perimeter > 400 and perimeter < 1300):
+			if(perimeter > 350 and perimeter < 1300):
 				approx = cv2.approxPolyDP(cnt, factor * perimeter, True)
 			else:
 				print(perimeter)
