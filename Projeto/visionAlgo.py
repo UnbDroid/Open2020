@@ -413,8 +413,11 @@ def getNumber(_clientID):
 
 	src = frame.copy()
 	img = basicFilter(src, 1)
+	cv2.imshow('ImageWindow', img)
+	cv2.waitKey()
 	isolImg, nres = isolateFace(frame.copy(), img, resol, 0)
-
+	cv2.imshow('ImageWindow', isolImg)
+	cv2.waitKey()
 
 	cv2.imwrite('./imgs/7new.png', isolImg)
 	text = pytes.image_to_string(isolImg, config='--oem 2 --psm 7 -c tessedit_char_whitelist=0123456789')

@@ -144,7 +144,7 @@ def separateMatrix(matrix):
         matrixFinal.append(matrixK[i])
     for i in range(len(matrixRGB)):
         matrixFinal.append(matrixRGB[i])
-    #print(matrixW, "&", matrixK, "&", matrixRGB, "&", matrixFinal)
+    print(matrixW, "&", matrixK, "&", matrixRGB, "&", matrixFinal)
     #matrixFinal = np.concatenate((matrixW, matrixK, matrixRGB), axis=0)
     #matrixFinal = np.concatenate((matrixFinal, matrixRGB), axis=0)
     return matrixW, matrixK, matrixRGB, matrixFinal

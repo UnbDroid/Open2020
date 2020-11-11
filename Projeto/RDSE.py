@@ -173,7 +173,7 @@ def leave(cube):
 
 def subir_elevador(altura):
     sim.simxSetJointTargetPosition(clientID,elevador,altura,sim.simx_opmode_oneshot) 
-    time.sleep(1)
+    time.sleep(0.5)
 
 def descer_elevador():
     sim.simxSetJointTargetPosition(clientID,elevador,-0.15,sim.simx_opmode_oneshot)
@@ -191,14 +191,14 @@ def fechar_garra():
     sim.simxSetJointTargetPosition(clientID,paDireita,0.025,sim.simx_opmode_oneshot) 
     sim.simxSetJointTargetPosition(clientID,paEsquerda,0.025,sim.simx_opmode_oneshot)
     sim.simxPauseCommunication(clientID, False)
-    time.sleep(1)
+    time.sleep(0.5)
 
 def fechar_garra_total():
     sim.simxPauseCommunication(clientID, True)
     sim.simxSetJointTargetPosition(clientID,paDireita, 0.015, sim.simx_opmode_oneshot) 
     sim.simxSetJointTargetPosition(clientID,paEsquerda, 0.015, sim.simx_opmode_oneshot)
     sim.simxPauseCommunication(clientID, False)
-    time.sleep(1)
+    time.sleep(0.5)
 
 def fechar_garra_cubo(cube):
     erro = 1
@@ -1299,7 +1299,7 @@ def goToSquareSide(myDirection, firstDirection, finalTurn):
         MoveDirectionPosition(tras, 0.005)
         print('virando', finalTurn)
         TurnDirectionAng(finalTurn, 90)
-    MoveDirectionPosition(tras, 0.01)
+    #MoveDirectionPosition(tras, 0.01)
 
     
         
@@ -1607,6 +1607,12 @@ def winOPEN():
             myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor, blockSquare)
             print(currentPosition, myDirection, cube, blockNumber)
             if(blockNumber == 0):
+                abrir_garra()
+                fechar_garra_total()
+                abrir_garra()
+                fechar_garra_total()
+                abrir_garra()
+                fechar_garra_total()
                 blockZero.append([blockSquare, blockPosition])
             if((blockColor == 'K' or blockColor == 'W') and blockNumber != 0):
                 #identifica número
