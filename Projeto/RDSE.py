@@ -20,6 +20,7 @@ import graphBlocks as gb
 import visionAlgo as vis
 import giroAlgo as giro
 import graphBlocksBetter as gbb
+import firstSq
 
 PRETO = 0
 VERMELHO = 1
@@ -883,7 +884,161 @@ def TurnInSquare(angle): #gira no centro do quadrado e vai para ponta
     Align()
 
 
+###### Funções Posição Inicial #####################################################
 
+def inicio_virar_SUL(): # para a função COM VISÃO
+    
+    d=0
+
+    while(True):
+        
+        erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+        gamma=(b[2]*180)/(np.pi)
+
+        if(gamma>=-3 and gamma<=3):
+            Stop()
+            break
+
+        if(d==0):
+            if(gamma>0 and gamma<179.99):
+                d = -1
+            else:
+                d = 1
+
+        v=4
+        sim.simxPauseCommunication(clientID, True)
+        sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*v, sim.simx_opmode_oneshot)
+        sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
+        sim.simxPauseCommunication(clientID, False)
+
+    Align()
+    return
+
+def inicio_virar_NORTE(): # para a função SEM VISÃO; lembrar de adicionar no if(nao viu prataleira) virar 180.
+
+    d=0
+
+    while(True):
+        
+        erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+        gamma=(b[2]*180)/(np.pi)
+
+        if(gamma>=177 or gamma<=-177):
+            Stop()
+            break
+
+        if(d==0):
+            if(gamma>0 and gamma<179.99):
+                d = 1
+            else:
+                d =-1
+        
+        v=4
+        sim.simxPauseCommunication(clientID, True)
+        sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*v, sim.simx_opmode_oneshot)
+        sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
+        sim.simxPauseCommunication(clientID, False)
+
+    Align()
+    return
+
+def inicio_virar_SUL(): # para a função COM VISÃO
+    
+    d=0
+
+    while(True):
+        
+        erro,b=sim.simxGetObjectOrientation(clientID,robo,-1,sim.simx_opmode_blocking)
+        gamma=(b[2]*180)/(np.pi)
+
+        if(gamma>=-3 and gamma<=3):
+            Stop()
+            break
+
+        if(d==0):
+            if(gamma>0 and gamma<179.99):
+                d = -1
+            else:
+                d = 1
+
+        v=4
+        sim.simxPauseCommunication(clientID, True)
+        sim.simxSetJointTargetVelocity(clientID,robotRightMotor,d*v, sim.simx_opmode_oneshot)
+        sim.simxSetJointTargetVelocity(clientID,robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
+        sim.simxPauseCommunication(clientID, False)
+
+    Align()
+    return
+
+def find_initial_position(): ###SEM VISÃO
+
+    d=getDistanceIR(irRight)
+    
+    # se ele foi colocado virado pra prateleira => são os casos em q a posição inicial é: 12,22,13,23,15,25,16,26
+    inicio_virar_NORTE()
+    if(d!=1): 
+        if(d<0.237141400576):
+            l=1
+        else:
+            l=2
+        TurnInSquare(90)
+        while(True):
+            if(not getDistanceUS(usLateral)):
+                break
+            MoveSquareForward()
+        Stop()
+        c=1
+        return 10*l+c
+
+    # se o robo é colocado virado pras cores => são todos os demais casos de posição inicial.
+
+    else:    
+        TurnDirectionAng(esquerda, 180) 
+        while(True):
+            a=getColor(color_sensor_Right)
+            b=getColor(color_sensor_Left)
+            if((a!=BRANCO and a!=PRETO) or (b!=BRANCO and b!=PRETO)):
+                break
+            MoveSquareForward()
+            andar_em_metros(tras,2,0.05) #testar valor
+        #l=7
+        if(a==VERMELHO or b==VERMELHO):
+            return 74      
+        
+        TurnInSquare(-90)
+
+        Align()
+        andar_em_metros(frente,2,0.03) #testar valor
+
+        if(a==VERDE or b==VERDE):
+            
+            if(a==BRANCO or b==BRANCO):
+                andar_em_metros(tras,2,0.03)#testar valor
+                return 71
+            elif(a==AZUL or b==AZUL):
+                andar_em_metros(tras,2,0.03)#testar valor
+                return 77
+
+        elif(a==AZUL or b==AZUL):
+            
+            if(a==VERDE or b==VERDE):
+                andar_em_metros(tras,2,0.03)#testar valor
+                return 72
+            elif(a==AMARELO or b==AMARELO):
+                andar_em_metros(tras,2,0.03)#testar valor
+                return 76
+
+        elif(a==AMARELO or b==AMARELO):
+            
+            if(a==AZUL or b==AZUL):
+                andar_em_metros(tras,2,0.03)#testar valor
+                return 73
+            elif(a==VERMELHO or b==VERMELHO):
+                andar_em_metros(tras,2,0.03)#testar valor
+                return 75
+
+
+            
 
 #### Funções de lógica de movimentação ##############################################
 
@@ -1154,15 +1309,27 @@ def goToSquareSide(myDirection, firstDirection, finalTurn):
 def firstCorrection(i, myDirection, currentPosition, blockLocalPickup):
     print(i, myDirection, currentPosition, blockLocalPickup)
     if(i == 0):
-        if(blockLocalPickup % 10 >= 6):
-            print('east')
-            myDirection = turnTo(myDirection, EAST)
-            currentPosition += 1
+        if(currentPosition % 10 > 4):
+            if(blockLocalPickup % 10 >= 6):
+                print('east')
+                myDirection = turnTo(myDirection, EAST)
+                currentPosition  = 26
+            else:
+                print('west')
+                myDirection = turnTo(myDirection, WEST)
+                currentPosition = 25
         else:
-            print('west')
-            myDirection = turnTo(myDirection, WEST)
+            if(blockLocalPickup % 10 >= 2):
+                print('east')
+                myDirection = turnTo(myDirection, EAST)
+                currentPosition = 23
+            else:
+                print('west')
+                myDirection = turnTo(myDirection, WEST)
+                currentPosition = 22
         #andar_em_metros(frente, 5, 0.15)
         Align()
+        print(currentPosition)
     return myDirection, currentPosition
 
 def solvePath(matrix):
@@ -1179,31 +1346,65 @@ def solvePath(matrix):
     finalOrder = gbb.groupPaths(firstOrder, secondOrder, thirdOrder)
     return finalOrder, matrixFinal
 
-def getBlocksInformation(currentPosition, myDirection):
+def firstAreaCubes(currentPosition, myDirection, order):
+    if(order == 1):
+        destine = 22
+        direction = EAST
+        lastTurn = direita
+    if(order == 2):
+        destine = 23
+        direction = WEST
+        lastTurn = esquerda
     #Vai para a primeira área
-    currentPosition, myDirection = goFromTo(currentPosition, 22, myDirection)
+    currentPosition, myDirection = goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
-    myDirection = turnTo(myDirection ,EAST)
+    myDirection = turnTo(myDirection ,direction)
     #Align() #TurnTo ja alinha
     MoveDirectionPosition(frente, 0.05)
-    TurnDirectionAng(direita, 90)
+    TurnDirectionAng(lastTurn, 90)
     myDirection = SOUTH
     matrix0 = vis.resolveVision(clientID,0)
     #time.sleep(3)
-    
+    return matrix0, currentPosition, myDirection
 
+def secondAreaCubes(currentPosition, myDirection, order):
     #Vai para a segunda área
-    myDirection = turnTo(myDirection ,EAST)
-    #MoveDirectionPosition(frente, 0.020)
-    currentPosition += 1
-    currentPosition, myDirection = goFromTo(currentPosition, 25, myDirection)
+    # myDirection = turnTo(myDirection ,EAST)
+    # #MoveDirectionPosition(frente, 0.020)
+    # currentPosition += 1
+    if(order == 2):
+        destine = 25
+        direction = EAST
+        lastTurn = direita
+    if(order == 1):
+        destine = 26
+        direction = WEST
+        lastTurn = esquerda
+    currentPosition, myDirection = goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
-    myDirection = turnTo(myDirection ,EAST)
+    myDirection = turnTo(myDirection ,direction)
     #Align()
     MoveDirectionPosition(frente, 0.05)
-    TurnDirectionAng(direita, 90)
+    TurnDirectionAng(lastTurn, 90)
     myDirection = SOUTH
     matrix1 = vis.resolveVision(clientID,1)
+    return matrix1, currentPosition, myDirection
+
+
+def getBlocksInformation(currentPosition, myDirection):
+    if(currentPosition % 10 <= 4):
+        matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 1)
+        #Vai para a segunda área
+        myDirection = turnTo(myDirection ,EAST)
+        #MoveDirectionPosition(frente, 0.020)
+        currentPosition += 1
+        matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 2)
+    else:
+        matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 1)
+        myDirection = turnTo(myDirection ,WEST)
+        currentPosition -= 1
+        matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 2)
+
     #time.sleep(3)
 
     #myDirection = turnTo(myDirection ,WEST)
@@ -1374,8 +1575,15 @@ def grabBlock(currentPosition, blockPosition, myDirection, blockColor, blockSqua
             
 
 def winOPEN():
-    initialPosition = 11
+    # initialPosition = 11
+    inicio_virar_SUL()
+    initialPosition = firstSq.identifyFirstPos(clientID)
+    if(initialPosition[1] == -1):
+        MoveSquareForward()
+    iniY, iniX = firstSq.identifyFirstPos(clientID)
+    initialPosition = (iniY+1)*10+(iniX+1)
     initialDirection = SOUTH
+
     currentPosition, myDirection, order, matrix = getBlocksInformation(initialPosition, initialDirection)
     #time.sleep(1000)
     #order = [1, 2, 3]
@@ -1489,9 +1697,10 @@ if clientID != -1:
     #     time.sleep(1)
     #Align()
     winOPEN()
+    #print(find_initial_position())
     #abrir_garra()
     #Align()
-
+    #alinhar_cubo_na_direita_e_pegar()
     # for i in range(5):
     #     MoveSquareForward()
     #getBlocksInformation(initialPosition, initialDirection)

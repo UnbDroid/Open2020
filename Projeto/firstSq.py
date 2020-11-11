@@ -1,3 +1,4 @@
+# coding=utf-8
 # IMPORTANT: for each successful call to simxStart, there
 # should be a corresponding call to simxFinish at the end!
 
