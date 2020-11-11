@@ -1,4 +1,3 @@
-# coding=utf-8
 # IMPORTANT: for each successful call to simxStart, there
 # should be a corresponding call to simxFinish at the end!
 
@@ -337,7 +336,7 @@ def isolateFace(_src, _img, _res, _op):
 	cnts, hier = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	
 
-	cv2.imwrite('./imgs/5face.png', img)
+	cv2.imwrite('5face.png', img)
 	
 	approx = [0]
 	while(len(approx) < 2 and factor < 5):

@@ -8,12 +8,12 @@ import numpy as np
 matrixTeste = [
 #    ['R', 0],
 #    ['G', 0],
-   ['W', 1],
+    ['K', '7', '1']
 #    ['B', 2],
 #    ['Y', 2],
-   ['K', 7],
-   ['W', 6],
-   ['K', 5],
+#    ['K', 7],
+#    ['W', 6],
+#    ['K', 5],
 ]
 # matrix = [
 #     ['R', 0],
@@ -161,12 +161,29 @@ def groupPaths(first, second, third):
         finalOrder.append(third[i] - 2 + n)
     return finalOrder
 
-
-
-
+def invertMatrix(matrix):
+    for i in range(len(matrix)):
+        if(matrix[i][1] == 0):
+            matrix[i][1] = 3
+        if(matrix[i][1] == 1):
+            matrix[i][1] = 2
+        if(matrix[i][1] == 2):
+            matrix[i][1] = 1
+        if(matrix[i][1] == 3):
+            matrix[i][1] = 0
+            
+        if(matrix[i][2] == 0):
+            matrix[i][2] = 3
+        if(matrix[i][2] == 1):
+            matrix[i][2] = 2
+        if(matrix[i][2] == 2):
+            matrix[i][2] = 1
+        if(matrix[i][2] == 3):
+            matrix[i][2] = 0
+    return matrix
     
 
 
 
-# get_path(createGraphBlocks(matrix))
+get_path(createGraphBlocks(matrixTeste))
 #print(solvePath(matrix))

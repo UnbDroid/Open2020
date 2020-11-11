@@ -1309,24 +1309,44 @@ def goToSquareSide(myDirection, firstDirection, finalTurn):
 def firstCorrection(i, myDirection, currentPosition, blockLocalPickup):
     print(i, myDirection, currentPosition, blockLocalPickup)
     if(i == 0):
-        if(currentPosition % 10 > 4):
-            if(blockLocalPickup % 10 >= 6):
-                print('east')
-                myDirection = turnTo(myDirection, EAST)
-                currentPosition  = 26
+        if(currentPosition < 30):
+            if(currentPosition % 10 > 4):
+                if(blockLocalPickup % 10 >= 6):
+                    print('east')
+                    myDirection = turnTo(myDirection, EAST)
+                    currentPosition  = 26
+                else:
+                    print('west')
+                    myDirection = turnTo(myDirection, WEST)
+                    currentPosition = 25
             else:
-                print('west')
-                myDirection = turnTo(myDirection, WEST)
-                currentPosition = 25
+                if(blockLocalPickup % 10 >= 2):
+                    print('east')
+                    myDirection = turnTo(myDirection, EAST)
+                    currentPosition = 23
+                else:
+                    print('west')
+                    myDirection = turnTo(myDirection, WEST)
+                    currentPosition = 22
         else:
-            if(blockLocalPickup % 10 >= 2):
-                print('east')
-                myDirection = turnTo(myDirection, EAST)
-                currentPosition = 23
+            if(currentPosition % 10 > 4):
+                if(blockLocalPickup % 10 >= 6):
+                    print('east')
+                    myDirection = turnTo(myDirection, WEST)
+                    currentPosition  = 56
+                else:
+                    print('west')
+                    myDirection = turnTo(myDirection, EAST)
+                    currentPosition = 55
             else:
-                print('west')
-                myDirection = turnTo(myDirection, WEST)
-                currentPosition = 22
+                if(blockLocalPickup % 10 >= 2):
+                    print('east')
+                    myDirection = turnTo(myDirection, WEST)
+                    currentPosition = 53
+                else:
+                    print('west')
+                    myDirection = turnTo(myDirection, EAST)
+                    currentPosition = 52
         #andar_em_metros(frente, 5, 0.15)
         Align()
         print(currentPosition)
@@ -1338,13 +1358,23 @@ def solvePath(matrix):
     secondOrder = []
     thirdOrder = []
     if(len(matrixW) != 0):
-        firstOrder = gbb.get_path(gbb.createGraphBlocks(matrixW))
+        if(len(matrixW) == 1):
+            print('é um')
+            firstOrder = [1, 2]
+        else:    
+            firstOrder = gbb.get_path(gbb.createGraphBlocks(matrixW))
         print('first', firstOrder)
     if(len(matrixK) != 0):
-        secondOrder = gbb.get_path(gbb.createGraphBlocks(matrixK)) #melhorar a condicao inicial
+        if(len(matrixK) == 1):
+            secondOrder = [1, 2]
+        else: 
+            secondOrder = gbb.get_path(gbb.createGraphBlocks(matrixK)) #melhorar a condicao inicial
         print('second', secondOrder)
     if(len(matrixRGB) != 0):
-        thirdOrder = gbb.get_path(gbb.createGraphBlocks(matrixRGB))
+        if(len(matrixRGB) == 1):
+            thirdOrder = [1, 2]
+        else: 
+            thirdOrder = gbb.get_path(gbb.createGraphBlocks(matrixRGB))
         print( 'third', thirdOrder)
     finalOrder = gbb.groupPaths(firstOrder, secondOrder, thirdOrder)
     return finalOrder, matrixFinal
@@ -1393,20 +1423,81 @@ def secondAreaCubes(currentPosition, myDirection, order):
     matrix1 = vis.resolveVision(clientID,1)
     return matrix1, currentPosition, myDirection
 
+def thirdAreaCubes(currentPosition, myDirection, order):
+    if(order == 1):
+        destine = 52
+        direction = EAST
+        lastTurn = esquerda
+    if(order == 2):
+        destine = 53
+        direction = WEST
+        lastTurn = direita
+    #Vai para a primeira área
+    currentPosition, myDirection = goFromTo(currentPosition, destine, myDirection)
+    #Se posiciona da melhor forma para enxergar os blocos
+    myDirection = turnTo(myDirection ,direction)
+    #Align() #TurnTo ja alinha
+    MoveDirectionPosition(frente, 0.05)
+    TurnDirectionAng(lastTurn, 90)
+    myDirection = NORTH
+    matrix0 = vis.resolveVision(clientID,0) ####ALTERAR A MATRIZ
+    matrix0 = gbb.invertMatrix(matrix0)
+    #time.sleep(3)
+    return matrix0, currentPosition, myDirection
+
+def fourthAreaCubes(currentPosition, myDirection, order):
+    #Vai para a segunda área
+    # myDirection = turnTo(myDirection ,EAST)
+    # #MoveDirectionPosition(frente, 0.020)
+    # currentPosition += 1
+    if(order == 2):
+        destine = 55
+        direction = EAST
+        lastTurn = esquerda
+    if(order == 1):
+        destine = 56
+        direction = WEST
+        lastTurn = direita
+    currentPosition, myDirection = goFromTo(currentPosition, destine, myDirection)
+    #Se posiciona da melhor forma para enxergar os blocos
+    myDirection = turnTo(myDirection ,direction)
+    #Align()
+    MoveDirectionPosition(frente, 0.05)
+    TurnDirectionAng(lastTurn, 90)
+    myDirection = NORTH
+    matrix1 = vis.resolveVision(clientID,1) #MODIFICAR MATRIZ
+    matrix1 = gbb.invertMatrix(matrix1)
+    return matrix1, currentPosition, myDirection
+
 
 def getBlocksInformation(currentPosition, myDirection):
-    if(currentPosition % 10 <= 4):
-        matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 1)
-        #Vai para a segunda área
-        myDirection = turnTo(myDirection ,EAST)
-        #MoveDirectionPosition(frente, 0.020)
-        currentPosition += 1
-        matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 2)
-    else:
-        matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 1)
-        myDirection = turnTo(myDirection ,WEST)
-        currentPosition -= 1
-        matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 2)
+    print(currentPosition)
+    if (currentPosition < 40): #Ta na parte de cima
+        if(currentPosition % 10 <= 4):
+            matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 1)
+            #Vai para a segunda área
+            myDirection = turnTo(myDirection ,EAST)
+            #MoveDirectionPosition(frente, 0.020)
+            currentPosition += 1
+            matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 2)
+        else:
+            matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 1)
+            myDirection = turnTo(myDirection ,WEST)
+            currentPosition -= 1
+            matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 2)
+    else: #Ta na parte de baixo
+        if(currentPosition % 10 <= 4):
+            matrix0, currentPosition, myDirection = thirdAreaCubes(currentPosition, myDirection, 1)
+            #Vai para a segunda área
+            myDirection = turnTo(myDirection ,EAST)
+            #MoveDirectionPosition(frente, 0.020)
+            currentPosition += 1
+            matrix1, currentPosition, myDirection = fourthAreaCubes(currentPosition, myDirection, 2)
+        else:
+            matrix1, currentPosition, myDirection = fourthAreaCubes(currentPosition, myDirection, 1)
+            myDirection = turnTo(myDirection ,WEST)
+            currentPosition -= 1
+            matrix0, currentPosition, myDirection = thirdAreaCubes(currentPosition, myDirection, 2)
 
     #time.sleep(3)
 
