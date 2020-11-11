@@ -1,6 +1,7 @@
 def find_initial_position():
 
     d=getDistanceIR(irRight)
+    print(d)
     
     # se ele foi colocado virado pra prateleira => são os casos em q a posição inicial é: 12,22,13,23,15,25,16,26
 
@@ -9,6 +10,7 @@ def find_initial_position():
             l=1
         else:
             l=2
+        AlignBack(3)
         TurnInSquare(90)
         while(True):
             if(not getDistanceUS(usLateral)):
@@ -36,31 +38,38 @@ def find_initial_position():
 
         Align()
         andar_em_metros(frente,2,0.03) #testar valor
+        a1=getColor(color_sensor_Right)
+        b1=getColor(color_sensor_Left)
 
         if(a==VERDE or b==VERDE):
-            
-            if(a==BRANCO or b==BRANCO):
+
+            if(a1==BRANCO or b1==BRANCO):
                 andar_em_metros(tras,2,0.03)#testar valor
+                TurnInSquare(90)
                 return 71
-            else if(a==AZUL or b==AZUL):
+            elif(a1==AZUL or b1==AZUL):
                 andar_em_metros(tras,2,0.03)#testar valor
+                TurnInSquare(90)
                 return 77
 
-        else if(a==AZUL or b==AZUL):
+        elif(a==AZUL or b==AZUL):
             
-            if(a==VERDE or b==VERDE):
+            if(a1==VERDE or b1==VERDE):
                 andar_em_metros(tras,2,0.03)#testar valor
+                TurnInSquare(90)
                 return 72
-            else if(a==AMARELO or b==AMARELO):
+            elif(a1==AMARELO or b1==AMARELO):
                 andar_em_metros(tras,2,0.03)#testar valor
+                TurnInSquare(90)
                 return 76
 
-        else if(a==AMARELO or b==AMARELO):
+        elif(a==AMARELO or b==AMARELO):
             
-            if(a==AZUL or b==AZUL):
+            if(a1==AZUL or b1==AZUL):
                 andar_em_metros(tras,2,0.03)#testar valor
+                TurnInSquare(90)
                 return 73
-            else if(a==VERMELHO or b==VERMELHO):
+            elif(a1==VERMELHO or b1==VERMELHO):
                 andar_em_metros(tras,2,0.03)#testar valor
+                TurnInSquare(90)
                 return 75
-            
