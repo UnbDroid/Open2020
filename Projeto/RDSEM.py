@@ -27,6 +27,7 @@ import locomAlgo as move
 import logLocomAlgo as shift
 import alignAlgo as align
 import cuboAlgo as cubo
+import garraAlgo as garra
 
 ################# TESTEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ##########################33
 # matrix = [
@@ -67,16 +68,72 @@ def TimeOutAng(ang, startTime):
 def firstCorrection(i, myDirection, currentPosition, blockLocalPickup):
     print(i, myDirection, currentPosition, blockLocalPickup)
     if(i == 0):
-        if(blockLocalPickup % 10 >= 6):
-            print('east')
-            myDirection = shift.turnTo(myDirection, EAST)
-            currentPosition += 1
+        if(currentPosition % 10 > 4):
+            if(blockLocalPickup % 10 >= 6):
+                print('east')
+                myDirection = shift.turnTo(myDirection, EAST)
+                currentPosition  = 26
+            else:
+                print('west')
+                myDirection = shift.turnTo(myDirection, WEST)
+                currentPosition = 25
         else:
-            print('west')
-            myDirection = shift.turnTo(myDirection, WEST)
-        #move.andar_em_metros(frente, 5, 0.15)
+            if(blockLocalPickup % 10 >= 2):
+                print('east')
+                myDirection = shift.turnTo(myDirection, EAST)
+                currentPosition = 23
+            else:
+                print('west')
+                myDirection = shift.turnTo(myDirection, WEST)
+                currentPosition = 22
+        #andar_em_metros(frente, 5, 0.15)
         align.Align()
+        print(currentPosition)
     return myDirection, currentPosition
+	
+def firstAreaCubes(currentPosition, myDirection, order):
+    if(order == 1):
+        destine = 22
+        direction = EAST
+        lastTurn = direita
+    if(order == 2):
+        destine = 23
+        direction = WEST
+        lastTurn = esquerda
+    #Vai para a primeira área
+    currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
+    #Se posiciona da melhor forma para enxergar os blocos
+    myDirection = shift.turnTo(myDirection ,direction)
+    #Align() #TurnTo ja alinha
+    move.MoveDirectionPosition(frente, 0.05)
+    move.TurnDirectionAng(lastTurn, 90)
+    myDirection = SOUTH
+    matrix0 = vis.resolveVision(clientID,0)
+    #time.sleep(3)
+    return matrix0, currentPosition, myDirection
+
+def secondAreaCubes(currentPosition, myDirection, order):
+    #Vai para a segunda área
+    # myDirection = turnTo(myDirection ,EAST)
+    # #MoveDirectionPosition(frente, 0.020)
+    # currentPosition += 1
+    if(order == 2):
+        destine = 25
+        direction = EAST
+        lastTurn = direita
+    if(order == 1):
+        destine = 26
+        direction = WEST
+        lastTurn = esquerda
+    currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
+    #Se posiciona da melhor forma para enxergar os blocos
+    myDirection = shift.turnTo(myDirection ,direction)
+    #Align()
+    move.MoveDirectionPosition(frente, 0.05)
+    move.TurnDirectionAng(lastTurn, 90)
+    myDirection = SOUTH
+    matrix1 = vis.resolveVision(clientID,1)
+    return matrix1, currentPosition, myDirection
 
 def solvePath(matrix):
     matrixW, matrixK, matrixRGB, matrixFinal = gbb.separateMatrix(matrix)
@@ -93,34 +150,23 @@ def solvePath(matrix):
     return finalOrder, matrixFinal
 
 def getBlocksInformation(currentPosition, myDirection):
-    #Vai para a primeira área
-    currentPosition, myDirection = shift.goFromTo(currentPosition, 22, myDirection)
-    #Se posiciona da melhor forma para enxergar os blocos
-    myDirection = shift.turnTo(myDirection ,EAST)
-    #align.Align() #TurnTo ja alinha
-    move.MoveDirectionPosition(frente, 0.05)
-    move.TurnDirectionAng(direita, 90)
-    myDirection = SOUTH
-    matrix0 = vis.resolveVision(clientID,0)
-    #time.sleep(3)
-    
+    if(currentPosition % 10 <= 4):
+        matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 1)
+        #Vai para a segunda área
+        myDirection = shift.turnTo(myDirection ,EAST)
+        #MoveDirectionPosition(frente, 0.020)
+        currentPosition += 1
+        matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 2)
+    else:
+        matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 1)
+        myDirection = shift.turnTo(myDirection ,WEST)
+        currentPosition -= 1
+        matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 2)
 
-    #Vai para a segunda área
-    myDirection = shift.turnTo(myDirection ,EAST)
-    #move.MoveDirectionPosition(frente, 0.020)
-    currentPosition += 1
-    currentPosition, myDirection = shift.goFromTo(currentPosition, 25, myDirection)
-    #Se posiciona da melhor forma para enxergar os blocos
-    myDirection = shift.turnTo(myDirection ,EAST)
-    #align.Align()
-    move.MoveDirectionPosition(frente, 0.05)
-    move.TurnDirectionAng(direita, 90)
-    myDirection = SOUTH
-    matrix1 = vis.resolveVision(clientID,1)
     #time.sleep(3)
 
-    #myDirection = shift.turnTo(myDirection ,WEST)
-    #move.MoveDirectionPosition(frente, 0.020)
+    #myDirection = turnTo(myDirection ,WEST)
+    #MoveDirectionPosition(frente, 0.020)
     #currentPosition += 1
     # print(matrix0)
     # print(matrix1)
@@ -293,6 +339,7 @@ def winOPEN():
         move.MoveSquareForward()
     iniY, iniX = firstSq.identifyFirstPos(clientID)
     initialPosition = (iniY+1)*10+(iniX+1)
+	print(initialPosition)
     initialDirection = SOUTH
 
     currentPosition, myDirection, order, matrix = getBlocksInformation(initialPosition, initialDirection)
@@ -315,6 +362,12 @@ def winOPEN():
             myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor, blockSquare)
             print(currentPosition, myDirection, cube, blockNumber)
             if(blockNumber == 0):
+                garra.abrir_garra()
+                garra.fechar_garra_total()
+                garra.abrir_garra()
+                garra.fechar_garra_total()
+                garra.abrir_garra()
+                garra.fechar_garra_total()
                 blockZero.append([blockSquare, blockPosition])
             if((blockColor == 'K' or blockColor == 'W') and blockNumber != 0):
                 #identifica número

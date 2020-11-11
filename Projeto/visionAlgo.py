@@ -221,7 +221,7 @@ def findUseful(_src, _img, _factor):
 		cy = int(m['m01']/m['m00'])
 
 		if(compareCenters(cx, cy, foundCenters) == 1):		
-			if(len(approx) == 4 and (cv2.contourArea(cnt) > 200) and (cv2.contourArea(cnt) < 2600)):
+			if(len(approx) == 4 and (cv2.contourArea(cnt) > 200) and (cv2.contourArea(cnt) < 2800)):
 				k = np.array([[[cx,cy]]])
 				for padd in range(5-(len(approx))):
 					approx = np.append(approx, [[[0,0]]], axis=0)
@@ -413,11 +413,7 @@ def getNumber(_clientID):
 
 	src = frame.copy()
 	img = basicFilter(src, 1)
-	cv2.imshow('ImageWindow', img)
-	cv2.waitKey()
 	isolImg, nres = isolateFace(frame.copy(), img, resol, 0)
-	cv2.imshow('ImageWindow', isolImg)
-	cv2.waitKey()
 
 	cv2.imwrite('./imgs/7new.png', isolImg)
 	text = pytes.image_to_string(isolImg, config='--oem 2 --psm 7 -c tessedit_char_whitelist=0123456789')

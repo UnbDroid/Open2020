@@ -256,15 +256,17 @@ def goToSquareSide(myDirection, firstDirection, finalTurn):
     #move.MoveDirectionPosition(tras, 0.01)
     if(myDirection == -firstDirection):
     #if(False):
-        andar_em_metros(tras, 5, 0.10)
+        move.andar_em_metros(tras, 5, 0.10)
         align.AlignBack(2)
-        andar_em_metros(frente, 2, 0.13)
+        move.andar_em_metros(frente, 2, 0.13)
         move.TurnDirectionAng(-finalTurn, 90)
     else:
         print('virando', firstDirection)
         turnTo(myDirection, firstDirection)
         align.Align()
-        move.MoveDirectionPosition(tras, 0.005)
+        move.MoveDirectionPosition(tras, 0.006)
         print('virando', finalTurn)
         move.TurnDirectionAng(finalTurn, 90)
-    move.MoveDirectionPosition(tras, 0.01)
+	align.AlignSpecial(2)
+	move.andar_em_metros(tras, 5, 0.10)
+    #move.MoveDirectionPosition(tras, 0.01)
