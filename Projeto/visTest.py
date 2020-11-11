@@ -14,6 +14,7 @@ except:
 
 import time
 import visionAlgo as vis
+import firstSq as one
 # START
 
 print ('Program started')
@@ -24,8 +25,9 @@ if clientID!=-1:
 	time.sleep(2)
 
 	#result = vis.resolveVision(clientID,0)
-	#vis.getNumber(clientID)
-	#vis.getCode(clientID)
+	#result = vis.getNumber(clientID)
+	result = vis.getCode(clientID)
+	#print(one.identifyFirstPos(clientID))
 	#print(result)
 
 	# Before closing the connection to CoppeliaSim, make sure that the last command sent out had time to arrive. You can guarantee this with (for example):
