@@ -1358,20 +1358,22 @@ def solvePath(matrix):
     secondOrder = []
     thirdOrder = []
     if(len(matrixW) != 0):
-        if(len(matrixW) == 1):
-            print('é um')
+        #print('W', np.array(matrixW).ndim)
+        if(np.array(matrixW).ndim == 1):
             firstOrder = [1, 2]
         else:    
             firstOrder = gbb.get_path(gbb.createGraphBlocks(matrixW))
         print('first', firstOrder)
     if(len(matrixK) != 0):
-        if(len(matrixK) == 1):
+       #print('K', matrixK.ndim)
+        if(np.array(matrixK).ndim == 1):
             secondOrder = [1, 2]
         else: 
             secondOrder = gbb.get_path(gbb.createGraphBlocks(matrixK)) #melhorar a condicao inicial
         print('second', secondOrder)
     if(len(matrixRGB) != 0):
-        if(len(matrixRGB) == 1):
+        #print('RGB', matrixRGB.ndim)
+        if(np.array(matrixRGB).ndim == 1):
             thirdOrder = [1, 2]
         else: 
             thirdOrder = gbb.get_path(gbb.createGraphBlocks(matrixRGB))
