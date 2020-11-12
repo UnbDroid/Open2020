@@ -496,8 +496,17 @@ def winOPEN():
         blockLocalPickup = courseLastBlocks(blockSquare, blockPosition, blockZero, blockLocalPickup)
         currentPosition, myDirection = shift.goFromTo(currentPosition, blockLocalPickup, myDirection)
         myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor, blockSquare, True) #### modificar para casos islolados
-        move.andar_em_metros(tras, 3, 0.05)
-        align.AlignBack(3)
+        if(blockNumber == 0):
+                garra.abrir_garra()
+                garra.fechar_garra_total()
+                garra.abrir_garra()
+                garra.fechar_garra_total()
+                garra.abrir_garra()
+                garra.fechar_garra_total()
+                blockZero.append([blockSquare, blockPosition])
+        else:
+            move.andar_em_metros(tras, 3, 0.05)
+            align.AlignBack(3)
         if((blockColor == 'K' or blockColor == 'W') and blockNumber != 0):
             if(currentPosition > 50):
                 currentPosition, myDirection = shift.goFromTo(currentPosition, 44, myDirection)
