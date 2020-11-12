@@ -21,6 +21,60 @@ def Stop(clientID, _robotRightMotor, _robotLeftMotor):
     sim.simxSetJointTargetVelocity(clientID, _robotLeftMotor, 0, sim.simx_opmode_oneshot)
     sim.simxPauseCommunication(clientID, False)
 
+def Girar_X_graus(clientID, _robotRightMotor, _robotLeftMotor, _robo, d, graus):
+    
+    # d = 1 , anti horario, esquerda
+    # d =-1 , horario, direita
+    # v = velocidade
+    
+    v = 5
+    g = graus
+    erro,b_inicial=sim.simxGetObjectOrientation(clientID,_robo,-1,sim.simx_opmode_streaming)
+    while(erro != 0):
+        erro,b_inicial=sim.simxGetObjectOrientation(clientID,_robo,-1,sim.simx_opmode_streaming)
+
+
+    gamma_inicial=b_inicial[2]*180/(np.pi)
+    gamma_target=gamma_inicial-g*d
+    if(abs(gamma_target) > 190):
+        gamma_target = d*g
+        
+    sim.simxPauseCommunication(clientID, True)
+    sim.simxSetJointTargetVelocity(clientID,_robotRightMotor,d*v, sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetVelocity(clientID,_robotLeftMotor,(-1)*d*v, sim.simx_opmode_oneshot)
+    sim.simxPauseCommunication(clientID, False)
+
+    while(True):
+        erro,b=sim.simxGetObjectOrientation(clientID,_robo,-1,sim.simx_opmode_buffer)
+        gamma=b[2]*180/(np.pi)
+ 
+        #print(gamma)
+        if(abs(abs(gamma)-abs(gamma_inicial))>=0.85*g):
+            break
+        
+        #print(gamma_inicial,gamma)
+    Stop(clientID, _robotRightMotor, _robotLeftMotor)
+    erro,b_inicial=sim.simxGetObjectOrientation(clientID,_robo,-1,sim.simx_opmode_buffer)
+    #gamma_inicial=b_inicial[2]*180/(np.pi)
+
+    sim.simxPauseCommunication(clientID, True)
+    sim.simxSetJointTargetVelocity(clientID,_robotRightMotor,d*0.5, sim.simx_opmode_oneshot)
+    sim.simxSetJointTargetVelocity(clientID,_robotLeftMotor,(-1)*d*0.5, sim.simx_opmode_oneshot)
+    sim.simxPauseCommunication(clientID, False)
+
+    #print(gamma_inicial,gamma_target,gamma)
+    while(True):
+        sign = np.sign(gamma)
+        erro,b=sim.simxGetObjectOrientation(clientID,_robo,-1,sim.simx_opmode_buffer)
+        gamma=b[2]
+        gamma=gamma*180/(np.pi)
+
+        #print(gamma)
+        if(d*(gamma-gamma_target) < 0 or np.sign(gamma) != sign):
+            break
+        
+    #print(gamma_inicial,gamma)
+    Stop(clientID, _robotRightMotor, _robotLeftMotor)
 
 def Girar_90_graus_v2(clientID, _robotRightMotor, _robotLeftMotor, _robo, d):
 

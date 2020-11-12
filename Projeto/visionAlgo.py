@@ -427,10 +427,15 @@ def getNumber(_clientID):
 		cv2.imwrite('./imgs/7new.png', isolImg)
 
 	if(nres[0] < 100 or nres[1] < 100):
-		return ("empty", (-1, -1))
+		return ("empty", [-1, -1])
+
 
 
 	text = pytes.image_to_string(isolImg, config='--oem 2 --psm 7 -c tessedit_char_whitelist=0123456789')
+	 
+	if not(int(text) in range(0,16)):
+    	# Não está no intervalo permitido de números [0, 15]
+		return ("empty", [-1, -1])
 
 	op2 = compareFaces.compareNumber(isolImg, nres)
 	
