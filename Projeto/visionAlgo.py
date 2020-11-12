@@ -432,6 +432,13 @@ def getNumber(_clientID):
 
 	text = pytes.image_to_string(isolImg, config='--oem 2 --psm 7 -c tessedit_char_whitelist=0123456789')
 
+	if not(int(text) in range 0..16):
+    	# Não está no intervalo permitido de números [0, 15]
+		text = pytes.image_to_string(isolImg, config='--oem 2 --psm 7 -c tessedit_char_whitelist=0123456789')
+		if not(int(text) in range 0..16):
+    		# Após nova leitura, verificou-se novamente que não está no intervalo permitido [0, 15]
+			# Chamar função de reposicionar para nova leitura do cubo
+
 	op2 = compareFaces.compareNumber(isolImg, nres)
 	
 	return (text, op2)
