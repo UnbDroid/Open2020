@@ -72,39 +72,39 @@ def firstCorrection(i, myDirection, currentPosition, blockLocalPickup):
             if(currentPosition % 10 > 4):
                 if(blockLocalPickup % 10 >= 6):
                     print('east')
-                    myDirection = shift.turnTo(myDirection, EAST)
+                    myDirection = shift.turnTo(myDirection, EAST, False)
                     currentPosition  = 26
                 else:
                     print('west')
-                    myDirection = shift.turnTo(myDirection, WEST)
+                    myDirection = shift.turnTo(myDirection, WEST, False)
                     currentPosition = 25
             else:
                 if(blockLocalPickup % 10 >= 2):
                     print('east')
-                    myDirection = shift.turnTo(myDirection, EAST)
+                    myDirection = shift.turnTo(myDirection, EAST, False)
                     currentPosition = 23
                 else:
                     print('west')
-                    myDirection = shift.turnTo(myDirection, WEST)
+                    myDirection = shift.turnTo(myDirection, WEST, False)
                     currentPosition = 22
         else:
             if(currentPosition % 10 > 4):
                 if(blockLocalPickup % 10 >= 6):
                     print('east')
-                    myDirection = shift.turnTo(myDirection, EAST)
+                    myDirection = shift.turnTo(myDirection, EAST, False)
                     currentPosition  = 56
                 else:
                     print('west')
-                    myDirection = shift.turnTo(myDirection, WEST)
+                    myDirection = shift.turnTo(myDirection, WEST, False)
                     currentPosition = 55
             else:
                 if(blockLocalPickup % 10 >= 2):
                     print('east')
-                    myDirection = shift.turnTo(myDirection, EAST)
+                    myDirection = shift.turnTo(myDirection, EAST, False)
                     currentPosition = 53
                 else:
                     print('west')
-                    myDirection = shift.turnTo(myDirection, WEST)
+                    myDirection = shift.turnTo(myDirection, WEST, False)
                     currentPosition = 52
         #andar_em_metros(frente, 5, 0.15)
         align.Align()
@@ -123,7 +123,7 @@ def firstAreaCubes(currentPosition, myDirection, order):
     #Vai para a primeira área
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
-    myDirection = shift.turnTo(myDirection ,direction)
+    myDirection = shift.turnTo(myDirection ,direction, True)
     #Align() #TurnTo ja alinha
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
@@ -149,7 +149,7 @@ def secondAreaCubes(currentPosition, myDirection, order):
         lastTurn = esquerda
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
-    myDirection = shift.turnTo(myDirection ,direction)
+    myDirection = shift.turnTo(myDirection ,direction, True)
     #Align()
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
@@ -171,7 +171,7 @@ def thirdAreaCubes(currentPosition, myDirection, order):
     #Vai para a primeira área
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
-    myDirection = shift.turnTo(myDirection ,direction)
+    myDirection = shift.turnTo(myDirection ,direction, True)
     #Align() #TurnTo ja alinha
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
@@ -198,7 +198,7 @@ def fourthAreaCubes(currentPosition, myDirection, order):
         lastTurn = direita
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
-    myDirection = shift.turnTo(myDirection ,direction)
+    myDirection = shift.turnTo(myDirection ,direction, True)
     #Align()
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
@@ -244,26 +244,26 @@ def getBlocksInformation(currentPosition, myDirection):
         if(currentPosition % 10 <= 4):
             matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 1)
             #Vai para a segunda área
-            myDirection = shift.turnTo(myDirection ,EAST)
+            myDirection = shift.turnTo(myDirection ,EAST, True)
             #MoveDirectionPosition(frente, 0.020)
             currentPosition += 1
             matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 2)
         else:
             matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 1)
-            myDirection = shift.turnTo(myDirection ,WEST)
+            myDirection = shift.turnTo(myDirection ,WEST, True)
             currentPosition -= 1
             matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 2)
     else: #Ta na parte de baixo
         if(currentPosition % 10 <= 4):
             matrix0, currentPosition, myDirection = thirdAreaCubes(currentPosition, myDirection, 1)
             #Vai para a segunda área
-            myDirection = shift.turnTo(myDirection ,EAST)
+            myDirection = shift.turnTo(myDirection ,EAST, True)
             #MoveDirectionPosition(frente, 0.020)
             currentPosition += 1
             matrix1, currentPosition, myDirection = fourthAreaCubes(currentPosition, myDirection, 2)
         else:
             matrix1, currentPosition, myDirection = fourthAreaCubes(currentPosition, myDirection, 1)
-            myDirection = shift.turnTo(myDirection ,WEST)
+            myDirection = shift.turnTo(myDirection ,WEST, True)
             currentPosition -= 1
             matrix0, currentPosition, myDirection = thirdAreaCubes(currentPosition, myDirection, 2)
 

@@ -70,10 +70,14 @@ def identificar_valor(blockColor):
     if (blockColor == 'W'):
         text, op2 = vis.getNumber(glob.clientID)
         print(text,op2)
+        if(op2[0] == -1):
+            return -1
         if(int(text) == op2[0]):
             return int(text)
         elif(op2[1] < 0.1):
             text_, op2_ = vis.getNumber(glob.clientID)
+            if(op2_[0] == -1):
+                return -1
             if(int(text_) == op2_[0]):
                 return int(text_)
             elif(op2_[1] < 0.1):
@@ -86,7 +90,7 @@ def identificar_valor(blockColor):
             return num1
         else:
             return identificar_valor(blockColor)
-    return -1 
+    return -2 
 
 
 def chegar_perto_prateleira():
@@ -187,7 +191,7 @@ def alinhar_cubo_na_esquerda_e_pegar():
     garra.fechar_garra_cubo(cube)
     grab(cube)
     garra.subir_elevador(SEGUNDO_ANDAR)
-    align.AlignSpecial(2)
+    #align.AlignSpecial(2)
     #move.MoveDirectionPosition(tras, dist)
     return cube
 
@@ -240,7 +244,7 @@ def alinhar_cubo_na_direita_e_pegar():
     print('vou subir')
     garra.subir_elevador(SEGUNDO_ANDAR)
     print('subi')
-    align.AlignSpecial(2)
+    #align.AlignSpecial(2)
     #time.sleep(2)
     #move.MoveDirectionPosition(tras, dist)
     return cube
