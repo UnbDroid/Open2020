@@ -401,9 +401,7 @@ def trataCubo(myDirection, blockColor, hiddenBlock, direction, firstDirection, n
         reposicionarRobo(direction)
         blockNumber = cubo.identificar_valor(blockColor)
         if(blockNumber != 0):
-            cube = cubo.alinhar_cubo_na_direita_e_pegar()
-        elif(blockNumber == -1):
-            # Não identificou novamente
+            cube = cubo.alinhar_cubo_na_direita_e_pegar()         
         
     return myDirection, cube, blockNumber
 
@@ -466,7 +464,6 @@ def winOPEN():
         #blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[i] - 2, matrix) #AQUI FUNCIONA COM O CODIGO SIMPLES!!!!!
         order, matrix = solvePath(matrix, currentPosition)
         blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[0], matrix)
-        matrix = np.delete(matrix, order[0], axis=0)
         print(blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition)
         if (not hiddenBlock):
             myDirection, currentPosition = firstCorrection(i, myDirection, currentPosition, blockLocalPickup)
@@ -481,6 +478,19 @@ def winOPEN():
                 garra.abrir_garra()
                 garra.fechar_garra_total()
                 blockZero.append([blockSquare, blockPosition])
+            elif(blockNumber == -1):
+                # Cubo não identificado
+                # Desiste do bloco atual, troca pelo segundo, recalcula, GO.
+                second = matrix[order[1]]
+                matrix[order[1]] = matrix[order[0]]
+                matrix[order[0]] = second
+                blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[0], matrix)
+                
+                # Pega bloco
+                myDirection, currentPosition = firstCorrection(i, myDirection, currentPosition, blockLocalPickup)
+                currentPosition, myDirection = shift.goFromTo(currentPosition, blockLocalPickup, myDirection)
+                myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor, blockSquare, hiddenBlock)
+            
             if((blockColor == 'K' or blockColor == 'W') and blockNumber != 0):
                 #identifica número
                  ##### MODIFICAR QUANDO IDENTIFICAR
@@ -492,6 +502,7 @@ def winOPEN():
                 cubo.entregar_cubo_colorido(cube)
         else:
             pickLater.append([blockColor, blockLocalPickup, blockLocalDelivery, blockSquare, blockPosition])
+        matrix = np.delete(matrix, order[0], axis=0)
     for i in range(len(pickLater)):
         blockColor = pickLater[i][0]
         blockLocalPickup = pickLater[i][1]
@@ -511,16 +522,7 @@ def winOPEN():
             currentPosition, myDirection = shift.goFromTo(currentPosition, blockLocalDelivery, myDirection)
             cubo.entregar_cubo_colorido(cube)
 
-
-
-
-
-
-
-
 ##########################################
-
-
 
 print ('Program started')
 sim.simxFinish(-1) # just in case, close all opened connections
