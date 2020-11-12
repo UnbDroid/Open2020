@@ -1701,7 +1701,7 @@ def winOPEN():
         if (not hiddenBlock):
             myDirection, currentPosition = firstCorrection(i, myDirection, currentPosition, blockLocalPickup)
             currentPosition, myDirection = goFromTo(currentPosition, blockLocalPickup, myDirection)
-            myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor, blockSquare)
+            myDirection, cube, blockNumber = grabBlock(currentPosition, blockPosition, myDirection, blockColor, blockSquare, )
             print(currentPosition, myDirection, cube, blockNumber)
             if(blockNumber == 0):
                 abrir_garra()

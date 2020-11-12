@@ -53,6 +53,11 @@ def BlockDistances(start, end):
 
 
 def createGraphBlocks(matrix, initialPosition):
+    global all_sets, g, p
+    all_sets = []
+    g = {}
+    p = []
+
     graphBlocks = []
     for i in range(len(matrix)+1):
         aux = []
