@@ -1332,27 +1332,27 @@ def firstCorrection(i, myDirection, currentPosition, blockLocalPickup):
             if(currentPosition % 10 > 4):
                 if(blockLocalPickup % 10 >= 6):
                     print('east')
-                    myDirection = turnTo(myDirection, WEST)
+                    myDirection = turnTo(myDirection, EAST)
                     currentPosition  = 56
                 else:
                     print('west')
-                    myDirection = turnTo(myDirection, EAST)
+                    myDirection = turnTo(myDirection, WEST)
                     currentPosition = 55
             else:
                 if(blockLocalPickup % 10 >= 2):
                     print('east')
-                    myDirection = turnTo(myDirection, WEST)
+                    myDirection = turnTo(myDirection, EAST)
                     currentPosition = 53
                 else:
                     print('west')
-                    myDirection = turnTo(myDirection, EAST)
+                    myDirection = turnTo(myDirection, WEST)
                     currentPosition = 52
         #andar_em_metros(frente, 5, 0.15)
         Align()
         print(currentPosition)
     return myDirection, currentPosition
 
-def solvePath(matrix):
+def solvePath(matrix, currentPosition):
     matrixW, matrixK, matrixRGB, matrixFinal = gbb.separateMatrix(matrix)
     firstOrder = []
     secondOrder = []
@@ -1362,21 +1362,21 @@ def solvePath(matrix):
         if(np.array(matrixW).ndim == 1):
             firstOrder = [1, 2]
         else:    
-            firstOrder = gbb.get_path(gbb.createGraphBlocks(matrixW))
+            firstOrder = gbb.get_path(gbb.createGraphBlocks(matrixW, currentPosition))
         print('first', firstOrder)
     if(len(matrixK) != 0):
        #print('K', matrixK.ndim)
         if(np.array(matrixK).ndim == 1):
             secondOrder = [1, 2]
         else: 
-            secondOrder = gbb.get_path(gbb.createGraphBlocks(matrixK)) #melhorar a condicao inicial
+            secondOrder = gbb.get_path(gbb.createGraphBlocks(matrixK, currentPosition)) #melhorar a condicao inicial
         print('second', secondOrder)
     if(len(matrixRGB) != 0):
         #print('RGB', matrixRGB.ndim)
         if(np.array(matrixRGB).ndim == 1):
             thirdOrder = [1, 2]
         else: 
-            thirdOrder = gbb.get_path(gbb.createGraphBlocks(matrixRGB))
+            thirdOrder = gbb.get_path(gbb.createGraphBlocks(matrixRGB, currentPosition))
         print( 'third', thirdOrder)
     finalOrder = gbb.groupPaths(firstOrder, secondOrder, thirdOrder)
     return finalOrder, matrixFinal
@@ -1511,7 +1511,8 @@ def getBlocksInformation(currentPosition, myDirection):
     matrix = np.concatenate((matrix0, matrix1), axis=0)
     
     #order = gb.get_path(gb.createGraphBlocks(matrix))  #AQUI FUNCIONA COM O CODIGO SIMPLES!!!!!
-    order, matrixFinal = solvePath(matrix)
+    order, matrixFinal = solvePath(matrix, currentPosition)
+    order, matrixFinal = solvePath(matrix, currentPosition)
     print(order, matrixFinal)
     
 
@@ -1690,9 +1691,12 @@ def winOPEN():
     #currentPosition = initialPosition
     #myDirection = initialDirection
     #FIM DE TESTE
-    for i in range(len(order)):
+    n = len(order)
+    for i in range(n):
         #blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[i] - 2, matrix) #AQUI FUNCIONA COM O CODIGO SIMPLES!!!!!
-        blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[i], matrix)
+        order, matrix = solvePath(matrix, currentPosition)
+        matrix = np.delete(matrix, order[0], axis=0)
+        blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[0], matrix)
         print(blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition)
         if (not hiddenBlock):
             myDirection, currentPosition = firstCorrection(i, myDirection, currentPosition, blockLocalPickup)

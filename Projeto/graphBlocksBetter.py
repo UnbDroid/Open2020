@@ -25,7 +25,7 @@ matrixTeste = [
 delivery_locals = {'R': [74], 'Y': [73, 75], 'B': [72, 76], 'G': [71, 77], 'W': [14], 'K': [14]}
 stock_locals = {0: 32, 1: 33, 2: 42, 3:43, 4: 35, 5: 36, 6: 45, 7: 46}
 blockPoints = {'W': 1000,'K':500, 'R': 100, 'Y': 100, 'B': 100, 'G': 100}
-initialPosition = 26
+
 
 
 #print(n)
@@ -52,7 +52,7 @@ def BlockDistances(start, end):
         
 
 
-def createGraphBlocks(matrix):
+def createGraphBlocks(matrix, initialPosition):
     graphBlocks = []
     for i in range(len(matrix)+1):
         aux = []
@@ -185,5 +185,5 @@ def invertMatrix(matrix):
 
 
 
-get_path(createGraphBlocks(matrixTeste))
+#get_path(createGraphBlocks(matrixTeste))
 #print(solvePath(matrix))
