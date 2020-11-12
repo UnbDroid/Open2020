@@ -239,6 +239,10 @@ def identificar_valor(blockColor):
     if (blockColor == 'W'):
         text, op2 = vis.getNumber(clientID)
         print(text,op2)
+        if(op2[0] == -1):
+            return -1
+        if(op2[0] == -1):
+            return 
         if(int(text) == op2[0]):
             return int(text)
         elif(op2[1] < 0.1):
@@ -255,7 +259,7 @@ def identificar_valor(blockColor):
             return num1
         else:
             return identificar_valor(blockColor)
-    return -1 
+    return -2 
 
 
 def chegar_perto_prateleira():

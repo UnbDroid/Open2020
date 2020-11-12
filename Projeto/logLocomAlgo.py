@@ -33,29 +33,29 @@ def arrived(currentPosition, finalPosition): #Define se chegou ao local
     return False
 
 
-def correctDirection(myDirection, movement, axis): #define se o robô está virado para a direção correta, se não, corrige. Retorna direção atual
+def correctDirection(myDirection, movement, axis, alinhar): #define se o robô está virado para a direção correta, se não, corrige. Retorna direção atual
     if(axis == axisX):
         if(movement > 0): #Quer ir pra baixo (SUL)
             if(myDirection == SOUTH):
                 return SOUTH
             else:
                 if(myDirection == NORTH):
-                    move.TurnInSquare(180)
+                    turnAlignOrNot(180, alinhar)
                 if(myDirection == WEST):
-                    move.TurnInSquare(90)
+                    turnAlignOrNot(90, alinhar)
                 if(myDirection == EAST):
-                    move.TurnInSquare(-90)
+                    turnAlignOrNot(-90, alinhar)
                 return SOUTH
         if(movement < 0): #Quer ir pra cima (NORTE)
             if(myDirection == NORTH):
                 return NORTH
             else:
                 if(myDirection == SOUTH):
-                    move.TurnInSquare(180)
+                    turnAlignOrNot(180, alinhar)
                 if(myDirection == WEST):
-                    move.TurnInSquare(-90)
+                    turnAlignOrNot(-90, alinhar)
                 if(myDirection == EAST):
-                    move.TurnInSquare(90)
+                    turnAlignOrNot(90, alinhar)
                 return NORTH
 
     if(axis == axisY):
@@ -64,56 +64,65 @@ def correctDirection(myDirection, movement, axis): #define se o robô está vira
                 return EAST
             else:
                 if(myDirection == WEST):
-                    move.TurnInSquare(180)
+                    turnAlignOrNot(180, alinhar)
                 if(myDirection == NORTH):
-                    move.TurnInSquare(-90)
+                    turnAlignOrNot(-90, alinhar)
                 if(myDirection == SOUTH):
-                    move.TurnInSquare(90)
+                    turnAlignOrNot(90, alinhar)
                 return EAST
         if(movement < 0): #Quer ir pra direita (OESTE)
             if(myDirection == WEST):
                 return WEST
             else:
                 if(myDirection == EAST):
-                    move.TurnInSquare(180)
+                    turnAlignOrNot(180, alinhar)
                 if(myDirection == NORTH):
-                    move.TurnInSquare(90)
+                    turnAlignOrNot(90, alinhar)
                 if(myDirection == SOUTH):
-                    move.TurnInSquare(-90)
+                    turnAlignOrNot(-90, alinhar)
                 return WEST
 
-def turnTo(myDirection, finalDirection):
+def turnAlignOrNot(angle, alinhar):
+    if(alinhar):
+        move.TurnInSquare(angle)
+    else:
+        if(angle > 0):
+            move.TurnDirectionAng(esquerda, abs(angle))
+        if(angle < 0):
+            move.TurnDirectionAng(direita, abs(angle))
+
+def turnTo(myDirection, finalDirection, alinhar):
     if(finalDirection == NORTH):
         if(myDirection == EAST):
-            move.TurnInSquare(90)
+            turnAlignOrNot(90, alinhar)
         if(myDirection == SOUTH):
-            move.TurnInSquare(180)
+            turnAlignOrNot(180, alinhar)
         if(myDirection == WEST):
-            move.TurnInSquare(-90)
+            turnAlignOrNot(-90, alinhar)
         return NORTH
     if(finalDirection == EAST):
         if(myDirection == NORTH):
-            move.TurnInSquare(-90)
+            turnAlignOrNot(-90, alinhar)
         if(myDirection == SOUTH):
-            move.TurnInSquare(90)
+            turnAlignOrNot(90, alinhar)
         if(myDirection == WEST):
-            move.TurnInSquare(180)
+            turnAlignOrNot(180, alinhar)
         return EAST
     if(finalDirection == SOUTH):
         if(myDirection == EAST):
-            move.TurnInSquare(-90)
+            turnAlignOrNot(-90, alinhar)
         if(myDirection == NORTH):
-            move.TurnInSquare(180)
+            turnAlignOrNot(180, alinhar)
         if(myDirection == WEST):
-            move.TurnInSquare(90)
+            turnAlignOrNot(90, alinhar)
         return SOUTH
     if(finalDirection == WEST):
         if(myDirection == EAST):
-            move.TurnInSquare(180)
+            turnAlignOrNot(180, alinhar)
         if(myDirection == SOUTH):
-            move.TurnInSquare(-90)
+            turnAlignOrNot(-90, alinhar)
         if(myDirection == NORTH):
-            move.TurnInSquare(90)
+            turnAlignOrNot(90, alinhar)
         return WEST
             
 
@@ -135,72 +144,84 @@ def notStockLocal(currentPosition, movement, axis): #define se o robô está em 
 def goAround(currentPosition, myDirection): #desvia da área de carga e retorna nova posição e direção
     #Parte de cima
     if(currentPosition == 22):
-        myDirection = correctDirection(myDirection, -1, axisY)
+        myDirection = correctDirection(myDirection, -1, axisY, True)
         move.MoveSquareForward()
-        myDirection = correctDirection(myDirection, +1, axisX)
+        myDirection = correctDirection(myDirection, +1, axisX, True)
         move.MoveSquareForward()
         currentPosition = 31
     if(currentPosition == 23):
-        myDirection = correctDirection(myDirection, +1, axisY)
+        myDirection = correctDirection(myDirection, +1, axisY, True)
         move.MoveSquareForward()
-        myDirection = correctDirection(myDirection, +1, axisX)
+        myDirection = correctDirection(myDirection, +1, axisX, True)
         move.MoveSquareForward()
         currentPosition = 34
     if(currentPosition == 25):
-        myDirection = correctDirection(myDirection, -1, axisY)
+        myDirection = correctDirection(myDirection, -1, axisY, True)
         move.MoveSquareForward()
-        myDirection = correctDirection(myDirection, +1, axisX)
+        myDirection = correctDirection(myDirection, +1, axisX, True)
         move.MoveSquareForward()
         currentPosition = 34
     if(currentPosition == 26):
-        myDirection = correctDirection(myDirection, +1, axisY)
+        myDirection = correctDirection(myDirection, +1, axisY, True)
         move.MoveSquareForward()
-        myDirection = correctDirection(myDirection, +1, axisX)
+        myDirection = correctDirection(myDirection, +1, axisX, True)
         move.MoveSquareForward()
         currentPosition = 37
     #Parte de baixo
     if(currentPosition == 52):
-        myDirection = turnTo(myDirection, WEST)
+        myDirection = turnTo(myDirection, WEST, True)
         move.MoveSquareForward()
-        myDirection = turnTo(myDirection, NORTH)
+        myDirection = turnTo(myDirection, NORTH, True)
         move.MoveSquareForward()
         currentPosition = 41
     if(currentPosition == 53):
-        myDirection = turnTo(myDirection, EAST)
+        myDirection = turnTo(myDirection, EAST, True)
         move.MoveSquareForward()
-        myDirection = turnTo(myDirection, NORTH)
+        myDirection = turnTo(myDirection, NORTH, True)
         move.MoveSquareForward()
         currentPosition = 44
     if(currentPosition == 55):
-        myDirection = turnTo(myDirection, WEST)
+        myDirection = turnTo(myDirection, WEST, True)
         move.MoveSquareForward()
-        myDirection = turnTo(myDirection, NORTH)
+        myDirection = turnTo(myDirection, NORTH, True)
         move.MoveSquareForward()
         currentPosition = 44
     if(currentPosition == 56):
-        myDirection = turnTo(myDirection, EAST)
+        myDirection = turnTo(myDirection, EAST, True)
         move.MoveSquareForward()
-        myDirection = turnTo(myDirection, NORTH)
+        myDirection = turnTo(myDirection, NORTH, True)
         move.MoveSquareForward()
         currentPosition = 47
 
     return currentPosition, myDirection
 
 
+def firsMovement(moveX, moveY, currentPosition, myDirection):
+    if(moveY != 0 and notStockLocal(currentPosition, moveY, axisY)):
+        myDirection = correctDirection(myDirection, moveY, axisY, False)
+    elif(moveX != 0 and notStockLocal(currentPosition, moveX, axisX)):
+        myDirection = correctDirection(myDirection, moveX, axisX, False)
+    return myDirection
+
+
 def goFromTo(currentPosition, finalPosition, myDirection):
     finalPosition = realFinalPosition(finalPosition)
+    i = 0
     while(not arrived(currentPosition, finalPosition)):
         moveX = (finalPosition/10) - (currentPosition/10)
         moveY =  (finalPosition%10) - (currentPosition%10)
+        if(i == 0):
+            myDirection = firsMovement(moveX, moveY, currentPosition, myDirection)
+            i += 1
         if(moveY != 0 and notStockLocal(currentPosition, moveY, axisY)):
-            myDirection = correctDirection(myDirection, moveY, axisY)
+            myDirection = correctDirection(myDirection, moveY, axisY, True)
             move.MoveSquareForward()
             if(moveY > 0): #robô andou para a direita
                 currentPosition += 1
             else: #robô andou para a esquerda
                 currentPosition -= 1
         elif(moveX != 0 and notStockLocal(currentPosition, moveX, axisX)):
-            myDirection = correctDirection(myDirection, moveX, axisX)
+            myDirection = correctDirection(myDirection, moveX, axisX, True)
             move.MoveSquareForward()
             if(moveX > 0): #robô andou para baixo
                 currentPosition += 10
@@ -239,7 +260,7 @@ def goToShelfDeliver(block, currentPosition, myDirection, cube):
 
     myDirection = shelfPosition(block, myDirection)
     
-    myDirection = turnTo(myDirection, NORTH)
+    myDirection = turnTo(myDirection, NORTH, True)
     
     if(block <= 5):
         cubo.entregar_cubo_primeiro_andar(cube)
@@ -262,7 +283,7 @@ def goToSquareSide(myDirection, firstDirection, finalTurn, hiddenBlock):
         move.TurnDirectionAng(-finalTurn, 90)
     else:
         print('virando', firstDirection)
-        turnTo(myDirection, firstDirection)
+        turnTo(myDirection, firstDirection, True)
         align.Align()
         move.MoveDirectionPosition(tras, 0.002)
         print('virando', finalTurn)

@@ -67,6 +67,7 @@ def pegar_cubo():
 	garra.subir_elevador(SEGUNDO_ANDAR)
 
 def identificar_valor(blockColor):
+
 	if (blockColor == 'W'):
 		text, op2 = vis.getNumber(glob.clientID)
 		print(text,op2)
@@ -148,6 +149,7 @@ def entregar_cubo_primeiro_andar(cube):
 	garra.subir_elevador(SEGUNDO_ANDAR)
 
 def alinhar_cubo_na_esquerda_e_pegar():
+
 	move.andar_em_metros(tras, 2, 0.01)
 	garra.fechar_garra_total()
 	garra.descer_elevador()
