@@ -382,6 +382,7 @@ def trataCubo(myDirection, blockColor, hiddenBlock, direction, firstDirection, n
     if(blockNumber != 0):
         cube = cubo.alinhar_cubo_na_direita_e_pegar()
     if(blockNumber == -1):
+        # Implementar
         print("Não identificou bloco")
     return myDirection, cube, blockNumber
 
