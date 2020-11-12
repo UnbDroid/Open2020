@@ -427,7 +427,7 @@ def getNumber(_clientID):
 		cv2.imwrite('./imgs/7new.png', isolImg)
 
 	if(nres[0] < 100 or nres[1] < 100):
-		return ("empty", -1)
+		return ("empty", (-1, -1))
 
 
 	text = pytes.image_to_string(isolImg, config='--oem 2 --psm 7 -c tessedit_char_whitelist=0123456789')
@@ -451,6 +451,8 @@ def getCode(_clientID):
 		
 	img = basicFilter(src, 2, correction)
 	isolImg, nres = isolateFace(frame.copy(), img, resol, 1)
+	if(isolImg.size == 0):
+		return -1
 	while((nres[0] > 240 or nres[0] < 80 or nres[1] > 240 or nres[1] < 80 or (abs(nres[0]-nres[1]) > 70)) and correction != 3):
 		correction = correction+1
 		img = basicFilter(src, 2, correction)
