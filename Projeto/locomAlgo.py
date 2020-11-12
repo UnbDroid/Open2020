@@ -96,7 +96,7 @@ def gira_livre_uma_roda(roda, d, v):
         sim.simxPauseCommunication(glob.clientID, False)
 
 def MoveSquareForward():
-    andar_em_metros(frente, 6, 0.23)
+    andar_em_metros(frente, 6, 0.20)
     align.Align()
 
 
@@ -138,6 +138,7 @@ def inicio_virar_SUL(): # para a função COM VISÃO
         sim.simxPauseCommunication(glob.clientID, False)
 
     align.Align()
+    andar_em_metros(-1, 5, 0.065)
     return
 
 def inicio_virar_NORTE(): # para a função SEM VISÃO; lembrar de adicionar no if(nao viu prataleira) virar 180.

@@ -183,7 +183,7 @@ def alinhar_cubo_na_esquerda_e_pegar():
     # time.sleep(0.08)
     # move.Stop()
     print(dist)
-    move.andar_em_metros(frente, 2, dist)
+    move.andar_em_metros(frente, 2, dist+0.01)
     garra.fechar_garra_cubo(cube)
     grab(cube)
     garra.subir_elevador(SEGUNDO_ANDAR)
@@ -233,7 +233,7 @@ def alinhar_cubo_na_direita_e_pegar():
     # TurnLeft()
     # time.sleep(0.08)
     # move.Stop()
-    move.andar_em_metros(frente, 2, dist)
+    move.andar_em_metros(frente, 2, dist+0.01)
 
     garra.fechar_garra_cubo(cube)
     grab(cube)

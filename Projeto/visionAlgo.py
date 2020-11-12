@@ -1,3 +1,4 @@
+# coding=utf-8
 # IMPORTANT: for each successful call to simxStart, there
 # should be a corresponding call to simxFinish at the end!
 
@@ -131,7 +132,6 @@ def test(camera):
 
 
 
-
 def basicFilter(_src, _op, _correction=0):
 	"Processamento basico para isolar o topo dos cubos"
 	#Isolar a cor branca procurada usando HSV:
@@ -174,6 +174,9 @@ def basicFilter(_src, _op, _correction=0):
 		img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 		cv2.imwrite('./imgs/1gray2.png', img2)
 		img2 = cv2.medianBlur(img2, 3)
+		kernel = np.ones((5,5),dtype=np.uint8)
+		img2 = cv2.erode(img2,kernel,iterations = 2)
+		img2 = cv2.dilate(img2,kernel,iterations = 2)
 		cv2.imwrite('./imgs/4median2.png', img2)
 		nimg = cv2.bitwise_or(img, img2)
 		cv2.imwrite('./imgs/4median3.png', nimg)
@@ -220,7 +223,7 @@ def findUseful(_src, _img, _factor):
 		cy = int(m['m01']/m['m00'])
 
 		if(compareCenters(cx, cy, foundCenters) == 1):		
-			if(len(approx) == 4 and (cv2.contourArea(cnt) > 200) and (cv2.contourArea(cnt) < 2800)):
+			if(len(approx) == 4 and (cv2.contourArea(cnt) > 200) and (cv2.contourArea(cnt) < 2900)):
 				k = np.array([[[cx,cy]]])
 				for padd in range(5-(len(approx))):
 					approx = np.append(approx, [[[0,0]]], axis=0)
@@ -262,7 +265,7 @@ def rgbToLetter(_colors):
 
 def createArray(_foundCenters, _foundColors, _rangeY, _rangeX):
 	squares = np.empty(shape=[0,3])
-	_rangeY=_rangeY-int(0.078*_rangeY)
+	_rangeY=_rangeY-int(0.072*_rangeY)
 	adder = 0
 	if(sigValue == 1):
 		adder = 4
@@ -277,7 +280,7 @@ def createArray(_foundCenters, _foundColors, _rangeY, _rangeX):
 				subQuadrante = 3
 			else:
 				subQuadrante = 2
-			if(subQuadranteY > 0.72):
+			if(subQuadranteY > 0.70):
 				subQuadrante = subQuadrante-2
 			squares = np.append(squares, [[_foundColors[j], 1+adder, subQuadrante]], axis=0)
 		elif(center[1] < _rangeX/2):
@@ -295,7 +298,7 @@ def createArray(_foundCenters, _foundColors, _rangeY, _rangeX):
 				subQuadrante = 3
 			else:
 				subQuadrante = 2
-			if(subQuadranteY > 0.72):
+			if(subQuadranteY > 0.71):
 				subQuadrante = subQuadrante-2
 			squares = np.append(squares, [[_foundColors[j], 0+adder, subQuadrante]], axis=0)
 		else:
@@ -312,16 +315,17 @@ def createArray(_foundCenters, _foundColors, _rangeY, _rangeX):
 
 def isolateFace(_src, _img, _res, _op):
 	img = _img.copy()
-	img = img[int(_res[0]/2):_res[0], 0:int(_res[1]*0.7)]
+	nres = [_res[0]-int(_res[0]/2),int(_res[1]*0.6)]
+	img = img[int(_res[0]/2):_res[0], 0:int(_res[1]*0.6)]
 	minV = 127
 	factor = 0.13
-	if(_op): 
+	if(_op == 1): 
 		minV = 5
 		src = img.copy()
 
 	thres, img = cv2.threshold(img, minV, 255, cv2.THRESH_BINARY)
 
-	if(_op):
+	if(_op == 1):
 		kernel = np.ones((5,5),np.uint8)
 		img = cv2.dilate(img,kernel,iterations = 1)
 		img = cv2.erode(img,kernel,iterations = 3)
@@ -330,13 +334,18 @@ def isolateFace(_src, _img, _res, _op):
 		kernel = np.ones((7,7),dtype=np.uint8)
 		img = cv2.dilate(img,kernel,iterations = 1)
 		img = cv2.erode(img,kernel,iterations = 1)
+		kernel = np.ones((5,5),dtype=np.uint8)
+		img = cv2.erode(img,kernel,iterations = 2)
+		img = cv2.dilate(img,kernel,iterations = 2)
 
+	if(_op == 2):
+		img = img[int(nres[0]/4):nres[0], int(nres[1]/6):nres[1]-int(nres[1]/6)]
 
 	edges = cv2.Canny(img, 100, 200)
 	cnts, hier = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 	
 
-	cv2.imwrite('5face.png', img)
+	cv2.imwrite('./imgs/5face.png', img)
 	
 	approx = [0]
 	while(len(approx) < 2 and factor < 5):
@@ -344,8 +353,6 @@ def isolateFace(_src, _img, _res, _op):
 			perimeter = cv2.arcLength(cnt, True)
 			if(perimeter > 350 and perimeter < 1300):
 				approx = cv2.approxPolyDP(cnt, factor * perimeter, True)
-			else:
-				print(perimeter)
 		factor = factor + 0.2
 
 	if(factor > 5):
@@ -365,7 +372,7 @@ def isolateFace(_src, _img, _res, _op):
 
 	img = img[height:maxHei, width:maxWid]
 
-	if(_op):
+	if(_op == 1):
 		img = src[height:maxHei, width:maxWid]
 		thres, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
 
@@ -386,7 +393,7 @@ def resolveVision(_clientID, _sigValue):
 	
 	src = frame.copy()
 	img = basicFilter(src, 0)
-	foundShape, foundColors, foundCenters = findUseful(src, img, 0.07)
+	foundShape, foundColors, foundCenters = findUseful(src, img, 0.09)
 	foundColors = rgbToLetter(foundColors)
 	foundCubes = createArray(foundCenters, foundColors, resol[0], resol[1])
 
@@ -413,8 +420,16 @@ def getNumber(_clientID):
 	src = frame.copy()
 	img = basicFilter(src, 1)
 	isolImg, nres = isolateFace(frame.copy(), img, resol, 0)
-
 	cv2.imwrite('./imgs/7new.png', isolImg)
+	
+	if(nres[0] < 100 or nres[1] < 100):
+		isolImg, nres = isolateFace(frame.copy(), img, resol, 2)
+		cv2.imwrite('./imgs/7new.png', isolImg)
+
+	if(nres[0] < 100 or nres[1] < 100):
+		return ("empty", -1)
+
+
 	text = pytes.image_to_string(isolImg, config='--oem 2 --psm 7 -c tessedit_char_whitelist=0123456789')
 
 	op2 = compareFaces.compareNumber(isolImg, nres)

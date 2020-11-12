@@ -30,7 +30,6 @@ def compareNumber(_compImg, _compRes):
 
 
 		if(match[1] > ret):
-			print(num, ret)
 			for cnt in contCmp:
 				cv2.drawContours(imgNum, cnt, -1, (255,0,255), 3)
 			for cnt in contSrc:

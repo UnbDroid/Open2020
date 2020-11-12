@@ -78,7 +78,7 @@ def createGraphBlocks(matrix, initialPosition):
 
                 graphBlocks[i+1][k+1] = float(totalpath)/blockPoints[matrix[i][0]]
     
-    print(graphBlocks)
+    #print(graphBlocks)
     return graphBlocks
 
 def get_path(matrix):
@@ -167,24 +167,33 @@ def groupPaths(first, second, third):
     return finalOrder
 
 def invertMatrix(matrix):
-    for i in range(len(matrix)):
-        if(matrix[i][1] == 0):
-            matrix[i][1] = 3
-        if(matrix[i][1] == 1):
-            matrix[i][1] = 2
-        if(matrix[i][1] == 2):
-            matrix[i][1] = 1
-        if(matrix[i][1] == 3):
-            matrix[i][1] = 0
-            
-        if(matrix[i][2] == 0):
-            matrix[i][2] = 3
-        if(matrix[i][2] == 1):
-            matrix[i][2] = 2
-        if(matrix[i][2] == 2):
-            matrix[i][2] = 1
-        if(matrix[i][2] == 3):
-            matrix[i][2] = 0
+
+    for block in matrix:
+        if(block[1] == '0'):
+            block[1] = '3'
+        elif(block[1] == '1'):
+            block[1] = '2'
+        elif(block[1] == '2'):
+            block[1] = '1'
+        elif(block[1] == '3'):
+            block[1] = '0'
+        elif(block[1] == '4'):
+            block[1] = '7'
+        elif(block[1] == '5'):
+            block[1] = '6'
+        elif(block[1] == '6'):
+            block[1] = '5'
+        elif(block[1] == '7'):
+            block[1] = '4'
+
+        if(block[2] == '0'):
+            block[2] = '3'
+        elif(block[2] == '1'):
+            block[2] = '2'
+        elif(block[2] == '2'):
+            block[2] = '1'
+        elif(block[2] == '3'):
+            block[2] = '0'
     return matrix
     
 

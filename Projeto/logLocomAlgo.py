@@ -214,7 +214,7 @@ def goFromTo(currentPosition, finalPosition, myDirection):
 
 def shelfPosition(block, myDirection):
     if(Prateleiras[block] != 0):
-        goToSquareSide(myDirection, EAST, esquerda)
+        goToSquareSide(myDirection, EAST, esquerda, False)
         align.AlignSpecial(2)
         return NORTH
     
@@ -252,21 +252,24 @@ def goToShelfDeliver(block, currentPosition, myDirection, cube):
     return currentPosition, myDirection
 
 
-def goToSquareSide(myDirection, firstDirection, finalTurn):
+def goToSquareSide(myDirection, firstDirection, finalTurn, hiddenBlock):
     #move.MoveDirectionPosition(tras, 0.01)
     if(myDirection == -firstDirection):
     #if(False):
         move.andar_em_metros(tras, 5, 0.10)
         align.AlignBack(2)
-        move.andar_em_metros(frente, 2, 0.13)
+        move.andar_em_metros(frente, 2, 0.16)
         move.TurnDirectionAng(-finalTurn, 90)
     else:
         print('virando', firstDirection)
         turnTo(myDirection, firstDirection)
         align.Align()
-        move.MoveDirectionPosition(tras, 0.006)
+        move.MoveDirectionPosition(tras, 0.002)
         print('virando', finalTurn)
         move.TurnDirectionAng(finalTurn, 90)
-	align.AlignSpecial(2)
-	move.andar_em_metros(tras, 5, 0.10)
+
+    align.AlignSpecial(2)
+    if not hiddenBlock:
+        move.andar_em_metros(tras, 5, 0.06)
+
     #move.MoveDirectionPosition(tras, 0.01)
