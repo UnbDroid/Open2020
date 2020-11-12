@@ -374,6 +374,21 @@ def courseLastBlocks(blockSquare, blockPosition, blockZero, blockLocalPickup):
 
     return blockLocalPickup
 
+def reposicionarRobo(position):
+    if position == direita:
+        # Gira direita
+        giro.Girar_X_graus(glob.clientID, glob.robotRightMotor, glob.robotLeftMotor, glob.robo, -1, 10)
+        move.andar_em_metros(1, 1, 0.02) # Anda pra frente
+        # Gira esquerda
+        giro.Girar_X_graus(glob.clientID, glob.robotRightMotor, glob.robotLeftMotor, glob.robo, 1, 10)
+    elif position == esquerda:
+        # Gira esquerda
+        giro.Girar_X_graus(glob.clientID, glob.robotRightMotor, glob.robotLeftMotor, glob.robo, 1, 10)
+        move.andar_em_metros(1, 1, 0.02) # Anda pra frente
+        # Gira direita
+        giro.Girar_X_graus(glob.clientID, glob.robotRightMotor, glob.robotLeftMotor, glob.robo, -1, 10)
+        
+
 
 def trataCubo(myDirection, blockColor, hiddenBlock, direction, firstDirection, newmyDirection):
     shift.goToSquareSide(myDirection, firstDirection, direction, hiddenBlock)
@@ -382,8 +397,14 @@ def trataCubo(myDirection, blockColor, hiddenBlock, direction, firstDirection, n
     if(blockNumber != 0):
         cube = cubo.alinhar_cubo_na_direita_e_pegar()
     if(blockNumber == -1):
-        # Implementar
-        print("Não identificou bloco")
+        # Não identificou bloco
+        reposicionarRobo(direction)
+        blockNumber = cubo.identificar_valor(blockColor)
+        if(blockNumber != 0):
+            cube = cubo.alinhar_cubo_na_direita_e_pegar()
+        elif(blockNumber == -1):
+            # Não identificou novamente
+        
     return myDirection, cube, blockNumber
 
 
