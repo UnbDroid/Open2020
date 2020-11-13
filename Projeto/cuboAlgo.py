@@ -18,19 +18,19 @@ def grab(cube):
 	# erro =1
 	# while erro != 0:
 	#	erro = sim.simxSetObjectIntParameter(glob.clientID, cube, sim.sim_shapeintparam_respondable, 0, sim.simx_opmode_oneshot)
-	#	print('respondable', erro)
+	#	#!print('respondable', erro)
 	# time.sleep(1)
 	# erro = 1
 	# while erro != 0:
 	#	erro = sim.simxSetObjectIntParameter(glob.clientID, cube, sim.sim_shapeintparam_static, 1, sim.simx_opmode_oneshot)
-	#	print('dynamic', erro)
+	#	#!print('dynamic', erro)
 	# time.sleep(1)
-	#print(sim.simxSetModelProperty(glob.clientID, cubo, sim.sim_modelproperty_not_dynamic, sim.simx_opmode_oneshot))
+	##!print(sim.simxSetModelProperty(glob.clientID, cubo, sim.sim_modelproperty_not_dynamic, sim.simx_opmode_oneshot))
 	#time.sleep(1)
 	erro = 1
 	while erro != 0:
 		erro = sim.simxSetObjectParent(glob.clientID, cube, pa, True, sim.simx_opmode_oneshot)
-		#print('parent', erro)
+		##!print('parent', erro)
 	time.sleep(3)
 
 
@@ -41,13 +41,13 @@ def leave(cube):
 	erro =1
 	while erro != 0:
 		erro = sim.simxSetObjectIntParameter(glob.clientID, cube, sim.sim_shapeintparam_respondable, 1, sim.simx_opmode_oneshot)
-		#print('respondable', erro)
+		##!print('respondable', erro)
 	time.sleep(0.1)
 	erro = 1
 	while erro != 0:
 	   erro = sim.simxSetObjectIntParameter(glob.clientID, cube, sim.sim_shapeintparam_static, 0, sim.simx_opmode_oneshot)
-	   #print('dynamic', erro)
-	#print(sim.simxSetModelProperty(glob.clientID, cubo, sim.sim_modelproperty_not_dynamic, sim.simx_opmode_oneshot))
+	   ##!print('dynamic', erro)
+	##!print(sim.simxSetModelProperty(glob.clientID, cubo, sim.sim_modelproperty_not_dynamic, sim.simx_opmode_oneshot))
 	time.sleep(0.1)
 
 	## FUNÇÕES PEGAR CUBO ########################################
@@ -70,7 +70,7 @@ def identificar_valor(blockColor):
 
 	if (blockColor == 'W'):
 		text, op2 = vis.getNumber(glob.clientID)
-		print(text,op2)
+		#!print(text,op2)
 		if(op2[0] == -1):
 			return -1
 
@@ -97,10 +97,10 @@ def identificar_valor(blockColor):
 def chegar_perto_prateleira():
 	a = sense.getDistanceIR(glob.irLeft)
 	b = sense.getDistanceIR(glob.irRight)
-	#print('chegando')
+	##!print('chegando')
 	move.MoveForward(3)
 	while(a > 0.07 or b > 0.07):
-		#print(sense.getDistanceIR(glob.irLeft), sense.getDistanceIR(glob.irRight))
+		##!print(sense.getDistanceIR(glob.irLeft), sense.getDistanceIR(glob.irRight))
 		a = sense.getDistanceIR(glob.irLeft)
 		b = sense.getDistanceIR(glob.irRight)
 	move.Stop()
@@ -123,13 +123,13 @@ def entregar_cubo_terceiro_andar(cube):
 	garra.abrir_garra()
 	leave(cube)
 	#empurrar_cubo()
-	#print("Vou dar ré")
+	##!print("Vou dar ré")
 	align.AlignBack(3)
 	garra.fechar_garra_total()
 	garra.subir_elevador(SEGUNDO_ANDAR)
 
 def entregar_cubo_segundo_andar(cube):
-	#print('vou entregar')
+	##!print('vou entregar')
 	garra.subir_elevador(SEGUNDO_ANDAR)
 	move.MoveDirectionPosition(frente, 0.1)
 	chegar_perto_prateleira()
@@ -159,7 +159,7 @@ def alinhar_cubo_na_esquerda_e_pegar():
 	while True :
 		a = sense.getDistanceIR(glob.irRight)
 		b = sense.getDistanceIR(glob.irLeft)
-		#print(a,b)
+		##!print(a,b)
 		move.MoveForward(2)
 		if(b<0.03 or a < 0.03):
 			break
@@ -177,7 +177,7 @@ def alinhar_cubo_na_esquerda_e_pegar():
 	# while True :
 	#	 a = sense.getDistanceIR(glob.irRight)
 	#	 b = sense.getDistanceIR(glob.irLeft)
-		# print(a,b)
+		# #!print(a,b)
 		# giro_livre(direita, 2)
 		# # if(b<1): 
 		# #	 esq=esq+1
@@ -191,7 +191,7 @@ def alinhar_cubo_na_esquerda_e_pegar():
 	# TurnRight()
 	# time.sleep(0.08)
 	# move.Stop()
-	print(dist)
+	#!print(dist)
 	move.andar_em_metros(frente, 2, dist+0.01)
 	garra.fechar_garra_cubo(cube)
 	grab(cube)
@@ -207,7 +207,7 @@ def alinhar_cubo_na_direita_e_pegar():
 	while True :
 		a = sense.getDistanceIR(glob.irRight)
 		b = sense.getDistanceIR(glob.irLeft)
-		#print(a,b)
+		##!print(a,b)
 		
 		if(b<0.03 or a < 0.03):
 			break
@@ -223,11 +223,11 @@ def alinhar_cubo_na_direita_e_pegar():
 		dist = a
 	garra.abrir_garra()
 
-	dirt=0
+	# dirt=0
 	# while True :
 	#	 a = sense.getDistanceIR(glob.irRight)
 	#	 b = sense.getDistanceIR(glob.irLeft)
-	#	 print(a,b)
+	#	 #!print(a,b)
 	#	 giro_livre(esquerda, 2)
 	#	 # if(a<1): 
 	#	 #	 dirt=dirt+1
@@ -246,9 +246,9 @@ def alinhar_cubo_na_direita_e_pegar():
 
 	garra.fechar_garra_cubo(cube)
 	grab(cube)
-	print('vou subir')
+	#!print('vou subir')
 	garra.subir_elevador(SEGUNDO_ANDAR)
-	print('subi')
+	#!print('subi')
 	#align.AlignSpecial(2)
 	#time.sleep(2)
 	#move.MoveDirectionPosition(tras, dist)
