@@ -202,10 +202,10 @@ def firstMovement(moveX, moveY, currentPosition, myDirection):
     print("First movement")
     if(moveY != 0 and notStockLocal(currentPosition, moveY, axisY)):
         print("First movement Y")
-        myDirection = correctDirection(myDirection, moveY, axisY, False)
+        myDirection = correctDirection(myDirection, moveY, axisY, True)
     elif(moveX != 0 and notStockLocal(currentPosition, moveX, axisX)):
         print("First movement X")
-        myDirection = correctDirection(myDirection, moveX, axisX, False)
+        myDirection = correctDirection(myDirection, moveX, axisX, True)
     return myDirection
 
 def goToHalfSquare(moveX, moveY, currentPosition, myDirection):
