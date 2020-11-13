@@ -293,7 +293,7 @@ def goToShelfDeliver(block, currentPosition, myDirection, cube):
         cubo.entregar_cubo_terceiro_andar(cube)
     Prateleiras[block] += 1
 
-    move.andar_em_metros(tras, 3, 0.065)
+    #move.andar_em_metros(tras, 3, 0.065)
 
     return currentPosition, myDirection
 
@@ -310,7 +310,7 @@ def goToSquareSide(myDirection, firstDirection, finalTurn, hiddenBlock):
         print('virando', firstDirection)
         turnTo(myDirection, firstDirection, True)
         align.Align()
-        move.MoveDirectionPosition(tras, 0.002)
+        move.andar_em_metros(tras, 2, 0.01)
         print('virando', finalTurn)
         move.TurnDirectionAng(finalTurn, 90)
 

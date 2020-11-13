@@ -124,13 +124,14 @@ def firstAreaCubes(currentPosition, myDirection, order):
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
     myDirection = shift.turnTo(myDirection ,direction, True)
-    #Align() #TurnTo ja alinha
+    #align.Align() #TurnTo ja alinha
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
     myDirection = SOUTH
     align.Align()
     move.MoveDirectionPosition(tras, 0.065)
     matrix0 = vis.resolveVision(clientID,0)
+    align.Align()
     #time.sleep(3)
     return matrix0, currentPosition, myDirection
 
@@ -150,13 +151,14 @@ def secondAreaCubes(currentPosition, myDirection, order):
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
     myDirection = shift.turnTo(myDirection ,direction, True)
-    #Align()
+    #align.Align()
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
     myDirection = SOUTH
     align.Align()
     move.MoveDirectionPosition(tras, 0.065)
     matrix1 = vis.resolveVision(clientID,1)
+    align.Align()
     return matrix1, currentPosition, myDirection
 
 def thirdAreaCubes(currentPosition, myDirection, order):
@@ -172,7 +174,7 @@ def thirdAreaCubes(currentPosition, myDirection, order):
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
     myDirection = shift.turnTo(myDirection ,direction, True)
-    #Align() #TurnTo ja alinha
+    #align.Align() #TurnTo ja alinha
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
     myDirection = NORTH
@@ -180,6 +182,7 @@ def thirdAreaCubes(currentPosition, myDirection, order):
     move.MoveDirectionPosition(tras, 0.065)
     matrix0 = vis.resolveVision(clientID,0) ####ALTERAR A MATRIZ
     matrix0 = gbb.invertMatrix(matrix0)
+    align.Align()
     #time.sleep(3)
     return matrix0, currentPosition, myDirection
 
@@ -199,7 +202,7 @@ def fourthAreaCubes(currentPosition, myDirection, order):
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
     myDirection = shift.turnTo(myDirection ,direction, True)
-    #Align()
+    #align.Align()
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
     myDirection = NORTH
@@ -207,6 +210,7 @@ def fourthAreaCubes(currentPosition, myDirection, order):
     move.MoveDirectionPosition(tras, 0.065)
     matrix1 = vis.resolveVision(clientID,1) #MODIFICAR MATRIZ
     matrix1 = gbb.invertMatrix(matrix1)
+    align.Align()
     return matrix1, currentPosition, myDirection
 
 def solvePath(matrix, currentPosition):

@@ -9,12 +9,13 @@ import locomAlgo as move
 import numpy as np
 
 def Align():   #em desenvolvimento
-    v = 2
+    v = 3
     direita_preto = False
     esquerda_preto = False
     sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Left, -1, sim.simx_opmode_streaming)
     sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Right, -1, sim.simx_opmode_streaming)
 
+    move.MoveForward(v)
     while(True):
 
         if (sense.getColor(glob.color_sensor_Left) == PRETO or sense.getColor(glob.color_sensor_Right) == PRETO):
@@ -22,7 +23,7 @@ def Align():   #em desenvolvimento
             #print("Achei pela primeira vez")
             break
 
-        move.MoveForward(v)
+
 
     move.Stop()
     [erro, pri_pos_cor_dir] = sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Right, -1, sim.simx_opmode_buffer)
@@ -33,13 +34,15 @@ def Align():   #em desenvolvimento
     if (sense.getColor(glob.color_sensor_Left) == PRETO):
         esquerda_preto = True
 
+
         while(True):
 
             if (sense.getColor(glob.color_sensor_Right) == PRETO):
                 #print("Achei pela segunda vez direito")
                 break
 
-            move.MoveForward(v)
+            move.MoveForward(2)
+
 
     elif (sense.getColor(glob.color_sensor_Right) == PRETO):
         direita_preto = True
@@ -50,7 +53,7 @@ def Align():   #em desenvolvimento
                 #print("Achei pela segunda vez esquerdo")
                 break
 
-            move.MoveForward(v)
+            move.MoveForward(2)
 
     move.Stop()
     [erro, seg_pos_cor_dir] = sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Right, -1, sim.simx_opmode_buffer)
@@ -101,6 +104,7 @@ def Align():   #em desenvolvimento
                 print("Estou descentralizado para a esquerda")
                 #criar funcao que recentraliza
             else:
+                print("1")
                 while(True):
 
                     [erro, atual_pos_cor_esq] = sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Left, -1, sim.simx_opmode_buffer)
@@ -117,12 +121,14 @@ def Align():   #em desenvolvimento
 
 
 
+
         elif (direita_preto == True):
 
             if(y_d_dif_longi > 1):
                 print("Estou descentralizado para a direita")
                 #criar funcao que recentraliza
             else:
+                print("2")
                 while(True):
 
                     [erro, atual_pos_cor_dir] = sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Right, -1, sim.simx_opmode_buffer)
@@ -148,6 +154,7 @@ def Align():   #em desenvolvimento
                 print("Estou descentralizado para a esquerda")
                 # criar funcao que recentraliza
             else:
+                print("3")
                 while (True):
 
                     [erro, atual_pos_cor_esq] = sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Left, -1, sim.simx_opmode_buffer)
@@ -168,6 +175,7 @@ def Align():   #em desenvolvimento
                 print("Estou descentralizado para a direita")
                 # criar funcao que recentraliza
             else:
+                print("4")
                 while (True):
 
                     [erro, atual_pos_cor_dir] = sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Right, -1, sim.simx_opmode_buffer)
@@ -199,7 +207,7 @@ def Align():   #em desenvolvimento
 
 
 def AlignBack(v):
-    while (sense.getColor(glob.color_sensor_Left) != PRETO or sense.getColor(glob.color_sensor_Right) != PRETO):
+    while (sense.getColor(glob.color_sensor_Left) != PRETO and sense.getColor(glob.color_sensor_Right) != PRETO):
         move.MoveBack(v)
     move.Stop()
 
