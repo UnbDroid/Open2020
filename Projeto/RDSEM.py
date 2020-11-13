@@ -498,10 +498,11 @@ def winOPEN():
             elif(blockNumber == -1):
                 # Cubo não identificado
                 # Desiste do bloco atual, troca pelo segundo, recalcula, GO.
-                second = matrix[order[1]]
-                matrix[order[1]] = matrix[order[0]]
-                matrix[order[0]] = second
-                blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[0], matrix)
+                if(len(order) >= 2):
+                    second = matrix[order[1]]
+                    matrix[order[1]] = matrix[order[0]]
+                    matrix[order[0]] = second
+                    blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[0], matrix)
 
                 # Pega bloco
                 myDirection, currentPosition = firstCorrection(i, myDirection, currentPosition, blockLocalPickup)
