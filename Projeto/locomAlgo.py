@@ -7,6 +7,7 @@ from globalDefs import *
 import alignAlgo as align
 import giroAlgo as giro
 import numpy as np
+import sensorAlgo as sense
 
 ## FUNÇÕES DE LOCOMOÇAO ######################################
 
@@ -102,9 +103,9 @@ def MoveSquareForward():
 
 def TurnInSquare(angle): #gira no centro do quadrado e vai para ponta
     print(angle)
-    
+    if(sense.getColor(glob.color_sensor_Left) == PRETO or sense.getColor(glob.color_sensor_Right) == PRETO):
     #align.Align()
-    MoveDirectionPosition(tras, 0.065)
+        MoveDirectionPosition(tras, 0.065)
     if(angle > 0):
         TurnDirectionAng(esquerda, abs(angle))
     if(angle < 0):

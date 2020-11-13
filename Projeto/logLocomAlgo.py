@@ -84,8 +84,10 @@ def correctDirection(myDirection, movement, axis, alinhar): #define se o robô e
 
 def turnAlignOrNot(angle, alinhar):
     if(alinhar):
+        print("Vou virar alinhado")
         move.TurnInSquare(angle)
     else:
+        print("Não tô alinhado")
         if(angle > 0):
             move.TurnDirectionAng(esquerda, abs(angle))
         if(angle < 0):
@@ -196,10 +198,13 @@ def goAround(currentPosition, myDirection): #desvia da área de carga e retorna 
     return currentPosition, myDirection
 
 
-def firsMovement(moveX, moveY, currentPosition, myDirection):
+def firstMovement(moveX, moveY, currentPosition, myDirection):
+    print("First movement")
     if(moveY != 0 and notStockLocal(currentPosition, moveY, axisY)):
+        print("First movement Y")
         myDirection = correctDirection(myDirection, moveY, axisY, False)
     elif(moveX != 0 and notStockLocal(currentPosition, moveX, axisX)):
+        print("First movement X")
         myDirection = correctDirection(myDirection, moveX, axisX, False)
     return myDirection
 
@@ -227,7 +232,7 @@ def goFromTo(currentPosition, finalPosition, myDirection):
         moveX = (int(finalPosition/10)) - (int(currentPosition/10))
         moveY =  (finalPosition%10) - (currentPosition%10)
         if(i == 0):
-            myDirection = firsMovement(moveX, moveY, currentPosition, myDirection)
+            myDirection = firstMovement(moveX, moveY, currentPosition, myDirection)
             i += 1
         print
         if((abs(moveX) == 1 and abs(moveY) == 0)):
@@ -293,7 +298,7 @@ def goToShelfDeliver(block, currentPosition, myDirection, cube):
         cubo.entregar_cubo_terceiro_andar(cube)
     Prateleiras[block] += 1
 
-    #move.andar_em_metros(tras, 3, 0.065)
+    move.andar_em_metros(tras, 3, 0.065)
 
     return currentPosition, myDirection
 
@@ -308,6 +313,7 @@ def goToSquareSide(myDirection, firstDirection, finalTurn, hiddenBlock):
         move.TurnDirectionAng(-finalTurn, 90)
     else:
         print('virando', firstDirection)
+        align.Align()
         turnTo(myDirection, firstDirection, True)
         align.Align()
         move.andar_em_metros(tras, 2, 0.01)
