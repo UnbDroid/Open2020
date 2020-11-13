@@ -7,6 +7,7 @@ from globalDefs import *
 import alignAlgo as align
 import giroAlgo as giro
 import numpy as np
+import sensorAlgo as sense
 
 ## FUNÇÕES DE LOCOMOÇAO ######################################
 
@@ -96,15 +97,15 @@ def gira_livre_uma_roda(roda, d, v):
         sim.simxPauseCommunication(glob.clientID, False)
 
 def MoveSquareForward():
-    andar_em_metros(frente, 6, 0.20)
+    andar_em_metros(frente, 8, 0.20)
     align.Align()
 
 
 def TurnInSquare(angle): #gira no centro do quadrado e vai para ponta
     print(angle)
-    
-    align.Align()
-    MoveDirectionPosition(tras, 0.065)
+    if(sense.getColor(glob.color_sensor_Left) == PRETO or sense.getColor(glob.color_sensor_Right) == PRETO):
+    #align.Align()
+        MoveDirectionPosition(tras, 0.065)
     if(angle > 0):
         TurnDirectionAng(esquerda, abs(angle))
     if(angle < 0):

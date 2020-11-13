@@ -124,7 +124,7 @@ def firstAreaCubes(currentPosition, myDirection, order):
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
     myDirection = shift.turnTo(myDirection ,direction, True)
-    #Align() #TurnTo ja alinha
+    #align.Align() #TurnTo ja alinha
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
     myDirection = SOUTH
@@ -150,7 +150,7 @@ def secondAreaCubes(currentPosition, myDirection, order):
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
     myDirection = shift.turnTo(myDirection ,direction, True)
-    #Align()
+    #align.Align()
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
     myDirection = SOUTH
@@ -172,7 +172,7 @@ def thirdAreaCubes(currentPosition, myDirection, order):
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
     myDirection = shift.turnTo(myDirection ,direction, True)
-    #Align() #TurnTo ja alinha
+    #align.Align() #TurnTo ja alinha
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
     myDirection = NORTH
@@ -199,7 +199,7 @@ def fourthAreaCubes(currentPosition, myDirection, order):
     currentPosition, myDirection = shift.goFromTo(currentPosition, destine, myDirection)
     #Se posiciona da melhor forma para enxergar os blocos
     myDirection = shift.turnTo(myDirection ,direction, True)
-    #Align()
+    #align.Align()
     move.andar_em_metros(frente, 2, 0.04)
     move.TurnDirectionAng(lastTurn, 90)
     myDirection = NORTH
@@ -244,12 +244,14 @@ def getBlocksInformation(currentPosition, myDirection):
         if(currentPosition % 10 <= 2):
             matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 1)
             #Vai para a segunda área
+            align.Align()
             myDirection = shift.turnTo(myDirection ,EAST, True)
             #MoveDirectionPosition(frente, 0.020)
             currentPosition += 1
             matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 2)
         elif(currentPosition % 10 <= 4):
             matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 2)
+            align.Align()
             #Vai para a segunda área
             myDirection = shift.turnTo(myDirection ,EAST, True)
             #MoveDirectionPosition(frente, 0.020)
@@ -262,6 +264,7 @@ def getBlocksInformation(currentPosition, myDirection):
     else: #Ta na parte de baixo
         if(currentPosition % 10 <= 2):
             matrix0, currentPosition, myDirection = thirdAreaCubes(currentPosition, myDirection, 1)
+            align.Align()
             #Vai para a segunda área
             myDirection = shift.turnTo(myDirection ,EAST, True)
             #MoveDirectionPosition(frente, 0.020)
@@ -269,6 +272,7 @@ def getBlocksInformation(currentPosition, myDirection):
             matrix1, currentPosition, myDirection = fourthAreaCubes(currentPosition, myDirection, 2)
         elif(currentPosition % 10 <= 4):
             matrix0, currentPosition, myDirection = thirdAreaCubes(currentPosition, myDirection, 2)
+            align.Align()
             #Vai para a segunda área
             myDirection = shift.turnTo(myDirection ,EAST, True)
             #MoveDirectionPosition(frente, 0.020)

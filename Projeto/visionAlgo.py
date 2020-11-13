@@ -223,7 +223,7 @@ def findUseful(_src, _img, _factor):
 		cy = int(m['m01']/m['m00'])
 
 		if(compareCenters(cx, cy, foundCenters) == 1):		
-			if(len(approx) == 4 and (cv2.contourArea(cnt) > 200) and (cv2.contourArea(cnt) < 2900)):
+			if(len(approx) == 4 and (cv2.contourArea(cnt) > 200) and (cv2.contourArea(cnt) < 3000)):
 				k = np.array([[[cx,cy]]])
 				for padd in range(5-(len(approx))):
 					approx = np.append(approx, [[[0,0]]], axis=0)
