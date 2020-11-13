@@ -79,7 +79,7 @@ def firstCorrection(i, myDirection, currentPosition, blockLocalPickup):
                     myDirection = shift.turnTo(myDirection, WEST, False)
                     currentPosition = 25
             else:
-                if(blockLocalPickup % 10 >= 2):
+                if(blockLocalPickup % 10 > 2):
                     print('east')
                     myDirection = shift.turnTo(myDirection, EAST, False)
                     currentPosition = 23
@@ -98,7 +98,7 @@ def firstCorrection(i, myDirection, currentPosition, blockLocalPickup):
                     myDirection = shift.turnTo(myDirection, WEST, False)
                     currentPosition = 55
             else:
-                if(blockLocalPickup % 10 >= 2):
+                if(blockLocalPickup % 10 > 2):
                     print('east')
                     myDirection = shift.turnTo(myDirection, EAST, False)
                     currentPosition = 53
@@ -241,12 +241,18 @@ def solvePath(matrix, currentPosition):
 def getBlocksInformation(currentPosition, myDirection):
     print(currentPosition)
     if (currentPosition < 40): #Ta na parte de cima
-        if(currentPosition % 10 <= 4):
+        if(currentPosition % 10 <= 2):
             matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 1)
             #Vai para a segunda área
             myDirection = shift.turnTo(myDirection ,EAST, True)
             #MoveDirectionPosition(frente, 0.020)
             currentPosition += 1
+            matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 2)
+        elif(currentPosition % 10 <= 4):
+            matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 2)
+            #Vai para a segunda área
+            myDirection = shift.turnTo(myDirection ,EAST, True)
+            #MoveDirectionPosition(frente, 0.020)
             matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 2)
         else:
             matrix1, currentPosition, myDirection = secondAreaCubes(currentPosition, myDirection, 1)
@@ -254,12 +260,18 @@ def getBlocksInformation(currentPosition, myDirection):
             currentPosition -= 1
             matrix0, currentPosition, myDirection = firstAreaCubes(currentPosition, myDirection, 2)
     else: #Ta na parte de baixo
-        if(currentPosition % 10 <= 4):
+        if(currentPosition % 10 <= 2):
             matrix0, currentPosition, myDirection = thirdAreaCubes(currentPosition, myDirection, 1)
             #Vai para a segunda área
             myDirection = shift.turnTo(myDirection ,EAST, True)
             #MoveDirectionPosition(frente, 0.020)
             currentPosition += 1
+            matrix1, currentPosition, myDirection = fourthAreaCubes(currentPosition, myDirection, 2)
+        elif(currentPosition % 10 <= 4):
+            matrix0, currentPosition, myDirection = thirdAreaCubes(currentPosition, myDirection, 2)
+            #Vai para a segunda área
+            myDirection = shift.turnTo(myDirection ,EAST, True)
+            #MoveDirectionPosition(frente, 0.020)
             matrix1, currentPosition, myDirection = fourthAreaCubes(currentPosition, myDirection, 2)
         else:
             matrix1, currentPosition, myDirection = fourthAreaCubes(currentPosition, myDirection, 1)

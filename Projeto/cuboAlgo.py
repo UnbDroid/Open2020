@@ -105,6 +105,7 @@ def chegar_perto_prateleira():
     move.Stop()
 
 def entregar_cubo_colorido(cube):
+    align.Align()
     garra.descer_elevador()
     leave(cube)
     garra.abrir_garra()

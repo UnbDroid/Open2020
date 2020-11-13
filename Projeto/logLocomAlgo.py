@@ -203,17 +203,39 @@ def firsMovement(moveX, moveY, currentPosition, myDirection):
         myDirection = correctDirection(myDirection, moveX, axisX, False)
     return myDirection
 
+def goToHalfSquare(moveX, moveY, currentPosition, myDirection):
+    if(moveY != 0 and notStockLocal(currentPosition, moveY, axisY)):
+        myDirection = correctDirection(myDirection, moveY, axisY, True)
+        if(moveY > 0): #robô andou para a direita
+            currentPosition += 1
+        else: #robô andou para a esquerda
+            currentPosition -= 1
+    elif(moveX != 0 and notStockLocal(currentPosition, moveX, axisX)):
+        myDirection = correctDirection(myDirection, moveX, axisX, True)
+        if(moveX > 0): #robô andou para baixo
+            currentPosition += 10
+        else:  #robô andou para cima
+            currentPosition -= 10
+    move.andar_em_metros(frente, 5, 0.15)
+    
+    return currentPosition, myDirection
 
 def goFromTo(currentPosition, finalPosition, myDirection):
     finalPosition = realFinalPosition(finalPosition)
     i = 0
     while(not arrived(currentPosition, finalPosition)):
-        moveX = (finalPosition/10) - (currentPosition/10)
+        moveX = (int(finalPosition/10)) - (int(currentPosition/10))
         moveY =  (finalPosition%10) - (currentPosition%10)
         if(i == 0):
             myDirection = firsMovement(moveX, moveY, currentPosition, myDirection)
             i += 1
-        if(moveY != 0 and notStockLocal(currentPosition, moveY, axisY)):
+        print
+        if((abs(moveX) == 1 and abs(moveY) == 0)):
+            print('ate metade')
+            print(currentPosition)
+            currentPosition, myDirection = goToHalfSquare(moveX, moveY, currentPosition, myDirection)
+            print('sai', currentPosition)
+        elif(moveY != 0 and notStockLocal(currentPosition, moveY, axisY)):
             myDirection = correctDirection(myDirection, moveY, axisY, True)
             move.MoveSquareForward()
             if(moveY > 0): #robô andou para a direita
@@ -229,8 +251,9 @@ def goFromTo(currentPosition, finalPosition, myDirection):
                 currentPosition -= 10
         elif (moveY == 0 and not notStockLocal(currentPosition, moveX, axisX)): #o robô ja chegou no eixo Y, mas não pode se movimentar em X por conta da área de carga
             currentPosition, myDirection = goAround(currentPosition, myDirection)
-        print(currentPosition)
+        print(currentPosition, moveX, moveY)
         #time.sleep(1)
+    print('sai')
     return currentPosition, myDirection
 
 def shelfPosition(block, myDirection):
