@@ -502,7 +502,8 @@ def winOPEN():
                     second = matrix[order[1]]
                     matrix[order[1]] = matrix[order[0]]
                     matrix[order[0]] = second
-                    blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[0], matrix)
+                
+                blockLocalPickup, blockLocalDelivery, blockColor, hiddenBlock, blockPosition, blockSquare = course(order[0], matrix)
 
                 # Pega bloco
                 myDirection, currentPosition = firstCorrection(i, myDirection, currentPosition, blockLocalPickup)
