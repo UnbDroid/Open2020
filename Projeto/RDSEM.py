@@ -459,6 +459,7 @@ def winOPEN():
     initialPosition = firstSq.identifyFirstPos(clientID)
     if(initialPosition[1] == -1):
         move.MoveSquareForward()
+        move.andar_em_metros(tras, 5, 0.065)
     iniY, iniX = firstSq.identifyFirstPos(clientID)
     initialPosition = (iniY+1)*10+(iniX+1)
     print(initialPosition)

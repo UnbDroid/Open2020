@@ -293,6 +293,8 @@ def goToShelfDeliver(block, currentPosition, myDirection, cube):
         cubo.entregar_cubo_terceiro_andar(cube)
     Prateleiras[block] += 1
 
+    move.andar_em_metros(tras, 3, 0.065)
+
     return currentPosition, myDirection
 
 

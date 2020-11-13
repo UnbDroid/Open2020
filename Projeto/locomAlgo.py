@@ -138,7 +138,7 @@ def inicio_virar_SUL(): # para a função COM VISÃO
         sim.simxPauseCommunication(glob.clientID, False)
 
     align.Align()
-    andar_em_metros(-1, 5, 0.065)
+    andar_em_metros(tras, 5, 0.065)
     return
 
 def inicio_virar_NORTE(): # para a função SEM VISÃO; lembrar de adicionar no if(nao viu prataleira) virar 180.

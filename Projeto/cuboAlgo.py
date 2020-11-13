@@ -106,7 +106,7 @@ def chegar_perto_prateleira():
 	move.Stop()
 
 def entregar_cubo_colorido(cube):
-<<<<<<< HEAD
+
     align.Align()
     garra.descer_elevador()
     leave(cube)
@@ -115,15 +115,6 @@ def entregar_cubo_colorido(cube):
     garra.subir_elevador(SEGUNDO_ANDAR)
     garra.fechar_garra_total()
     move.MoveDirectionPosition(tras, 0.05)
-=======
-	garra.descer_elevador()
-	leave(cube)
-	garra.abrir_garra()
-	#empurrar_cubo()
-	garra.subir_elevador(SEGUNDO_ANDAR)
-	garra.fechar_garra_total()
-	move.MoveDirectionPosition(tras, 0.05)
->>>>>>> 752317d9d891e5304cb996f32ceed45a280ac6c1
 
 def entregar_cubo_terceiro_andar(cube):
 	garra.subir_elevador(TERCEIRO_ANDAR)
@@ -132,6 +123,7 @@ def entregar_cubo_terceiro_andar(cube):
 	garra.abrir_garra()
 	leave(cube)
 	#empurrar_cubo()
+	#print("Vou dar ré")
 	align.AlignBack(3)
 	garra.fechar_garra_total()
 	garra.subir_elevador(SEGUNDO_ANDAR)
@@ -204,7 +196,7 @@ def alinhar_cubo_na_esquerda_e_pegar():
 	garra.fechar_garra_cubo(cube)
 	grab(cube)
 	garra.subir_elevador(SEGUNDO_ANDAR)
-	align.AlignSpecial(2)
+	#align.AlignSpecial(2)
 	#move.MoveDirectionPosition(tras, dist)
 	return cube
 
@@ -257,7 +249,7 @@ def alinhar_cubo_na_direita_e_pegar():
 	print('vou subir')
 	garra.subir_elevador(SEGUNDO_ANDAR)
 	print('subi')
-	align.AlignSpecial(2)
+	#align.AlignSpecial(2)
 	#time.sleep(2)
 	#move.MoveDirectionPosition(tras, dist)
 	return cube

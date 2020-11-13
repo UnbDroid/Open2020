@@ -201,6 +201,7 @@ def Align():   #em desenvolvimento
 def AlignBack(v):
     while (sense.getColor(glob.color_sensor_Left) != PRETO or sense.getColor(glob.color_sensor_Right) != PRETO):
         move.MoveBack(v)
+    move.Stop()
 
 def AlignSpecial(v):
     leftLine = True

@@ -1,3 +1,4 @@
+# coding=utf-8
 PRETO = 0
 VERMELHO = 1
 AMARELO = 2
