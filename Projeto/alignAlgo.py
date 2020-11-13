@@ -42,7 +42,7 @@ def Align():   #em desenvolvimento
 	[erro, pri_pos_cor_esq] = sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Left, -1, sim.simx_opmode_buffer)
 	#print(erro, pri_pos_cor_esq)
 
-	print(pri_pos_cor_dir, pri_pos_cor_esq)
+	#print(pri_pos_cor_dir, pri_pos_cor_esq)
 	if (sense.getColor(glob.color_sensor_Left) == PRETO):
 		esquerda_preto = True
 
@@ -112,11 +112,11 @@ def Align():   #em desenvolvimento
 		if(pri_pos_cor_dir[1] < pri_pos_cor_esq[1]):
 			esquerda_preto == True
 			direita_preto == False
-			print("A")
+			#print("A")
 		elif(directIni == SOUTH):
 			esquerda_preto == True
 			direita_preto == False
-			print("A")
+			#print("A")
 		else:
 			esquerda_preto == False
 			direita_preto == True
@@ -127,7 +127,7 @@ def Align():   #em desenvolvimento
 				print("Estou descentralizado para a esquerda")
 				#criar funcao que recentraliza
 			else:
-				print("1")
+				#print("1")
 				while(True):
 
 					[erro, atual_pos_cor_esq] = sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Left, -1, sim.simx_opmode_buffer)
@@ -151,7 +151,7 @@ def Align():   #em desenvolvimento
 				print("Estou descentralizado para a direita")
 				#criar funcao que recentraliza
 			else:
-				print("2")
+				#print("2")
 				while(True):
 
 					[erro, atual_pos_cor_dir] = sim.simxGetObjectPosition(glob.clientID, glob.color_sensor_Right, -1, sim.simx_opmode_buffer)
@@ -173,11 +173,11 @@ def Align():   #em desenvolvimento
 		if(pri_pos_cor_dir[0] < pri_pos_cor_esq[0]):
 			esquerda_preto == True
 			direita_preto == False
-			print("A")
+			#print("A")
 		elif(directIni == EAST):
 			esquerda_preto == True
 			direita_preto == False
-			print("2")
+			#print("2")
 		else:
 			direita_preto == True
 			esquerda_preto == False
